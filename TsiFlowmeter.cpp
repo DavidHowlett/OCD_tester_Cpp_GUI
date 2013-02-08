@@ -10,6 +10,7 @@ TsiFlowmeter::TsiFlowmeter(int Port){
 	LastMassFlow 		= -2;
 	LastTemperature = -2;
 	LastPressure 		= -2;
+	DataCount 			= 10000; // this just causes the first request for data to be sent
 	Ring = new RingBuffer(RingSize);
 	// fill the ring buffer with null chars
 	for (RingPosition=0;RingPosition<RingSize;RingPosition++)
@@ -56,9 +57,11 @@ TsiFlowmeter::TsiFlowmeter(int Port){
 
 }
 void TsiFlowmeter::CallMeRegularly(){
-	if(true){//this will be "is more data needed?"
+	if(LastBytesRead==0&&BytesRead==0){//there is 6000 bytes in a batch of readings from the tsi.
 		GetNewData();
+		RingPosition-=2; // the TSI terminates data with FF this is not useful so it is deleted
 	}
+	LastBytesRead=BytesRead;
 	ReadFile(		TsiPortHandle,	//HANDLE        hFile,
 							TmpBuffer,      //LPVOID        lpBuffer,
 							TmpBufferSize,   //DWORD         nNumberOfBytesToRead,
@@ -81,7 +84,7 @@ void TsiFlowmeter::CallMeRegularly(){
 		//assert((60>LastTemperature)&&(LastTemperature>10));
 		//assert((1.5>LastPressure)&&(LastPressure>0.5));
 	}
-	Sleep(2000);
+	//Sleep(2000);
 }
 void TsiFlowmeter::GetNewData(){
 	ClearBuffer();// this clears window's internal buffer

@@ -30,6 +30,7 @@ class TsiFlowmeter{
 		static const int TmpBufferSize=200;
 		unsigned char TmpBuffer[TmpBufferSize];
 		unsigned long BytesRead;
+		unsigned long LastBytesRead;
 		RingBuffer * Ring;
 		static const int RingSize = 300;
 		COMMTIMEOUTS StdTimeouts;

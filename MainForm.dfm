@@ -3,7 +3,7 @@ object Form1: TForm1
   Top = 0
   Caption = 'OCD test program'
   ClientHeight = 344
-  ClientWidth = 349
+  ClientWidth = 345
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,7 +12,7 @@ object Form1: TForm1
   Font.Style = []
   OldCreateOrder = False
   DesignSize = (
-    349
+    345
     344)
   PixelsPerInch = 96
   TextHeight = 13
@@ -184,11 +184,12 @@ object Form1: TForm1
   object FlowmeterStatus: TListBox
     Left = 8
     Top = 27
-    Width = 328
+    Width = 324
     Height = 49
     Anchors = [akLeft, akTop, akRight]
     ItemHeight = 13
     TabOrder = 11
+    ExplicitWidth = 328
   end
   object FastTimer: TTimer
     Interval = 1

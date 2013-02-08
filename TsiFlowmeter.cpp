@@ -58,8 +58,7 @@ TsiFlowmeter::TsiFlowmeter(int Port){
 void TsiFlowmeter::CallMeRegularly(){
 	if(true){//this will be "is more data needed?"
 		GetNewData();
-	}// The TSI sends a single null char to start communication, it has no value
-	 // to me and it can cause sycroniseation issues so I dump it
+	}
 	ReadFile(		TsiPortHandle,	//HANDLE        hFile,
 							TmpBuffer,      //LPVOID        lpBuffer,
 							TmpBufferSize,   //DWORD         nNumberOfBytesToRead,
@@ -78,9 +77,9 @@ void TsiFlowmeter::CallMeRegularly(){
 		LastMassFlow		=(Ring->Read(LastByteOfGoodDataset-5)*265.0+Ring->Read(LastByteOfGoodDataset-4))/1000.0;
 		LastTemperature	=(Ring->Read(LastByteOfGoodDataset-3)*265.0+Ring->Read(LastByteOfGoodDataset-2))/100.0;
 		LastPressure		=(Ring->Read(LastByteOfGoodDataset-1)*265.0+Ring->Read(LastByteOfGoodDataset))/10000.0;
-		assert((100>LastMassFlow)&&(LastMassFlow>-0.1));
-		assert((60>LastTemperature)&&(LastTemperature>10));
-		assert((1.5>LastPressure)&&(LastPressure>0.5));
+		//assert((100>LastMassFlow)&&(LastMassFlow>-0.1));
+		//assert((60>LastTemperature)&&(LastTemperature>10));
+		//assert((1.5>LastPressure)&&(LastPressure>0.5));
 	}
 	Sleep(2000);
 }
@@ -88,14 +87,16 @@ void TsiFlowmeter::GetNewData(){
 	ClearBuffer();// this clears window's internal buffer
 	DataCount = 0;
 	Write("DBFTP1000");
-	SetCommTimeouts(TsiPortHandle,&WaitForData);
-	Sleep(100); // remove me for true looping
+	//SetCommTimeouts(TsiPortHandle,&WaitForData);
+	Sleep(10); // experimentaly it was found that sleeping for 7 or less was unreliable.
+	// The TSI sends a single null char to start communication, it has no value
+	// to me and it causes synchronization issues so I dump it
 	ReadFile(		TsiPortHandle,	//HANDLE        hFile,
 							TmpBuffer,      //LPVOID        lpBuffer,
 							1,              //DWORD         nNumberOfBytesToRead,
 							&BytesRead,     //LPDWORD       lpNumberOfBytesRead,
 							FALSE);
-	SetCommTimeouts(TsiPortHandle,&StdTimeouts);
+	//SetCommTimeouts(TsiPortHandle,&StdTimeouts);
 }
 float TsiFlowmeter::MassFlow(){
 	return LastMassFlow;

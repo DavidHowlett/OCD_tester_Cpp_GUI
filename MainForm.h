@@ -16,7 +16,6 @@ __published:	// IDE-managed Components
 	TLabel *Label2;
 	TLabel *Label3;
 	TButton *Pause;
-	TButton *Button2;
 	TEdit *MassFlowMonitor;
 	TLabel *Label1;
 	TLabel *Label4;
@@ -36,6 +35,7 @@ __published:	// IDE-managed Components
 	TEdit *AvgCycleTime;
 	TTimer *FastTimer;
 	TListBox *EventLog;
+	TButton *Button2;
 	void __fastcall FastTimerTimer(TObject *Sender);
 	void __fastcall PauseClick(TObject *Sender);
 private:	// User declarations

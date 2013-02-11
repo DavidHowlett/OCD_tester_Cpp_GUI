@@ -13,10 +13,10 @@ class TsiFlowmeter{
 		float Pressure();
 		~TsiFlowmeter();
 	private:
-		void GetNewData();
-		bool TryGetDataWithOffset(int Offset);
+		void AskForData();
+		bool TestDataWithOffset(int Offset);
 		int Write(char*);       // sends a c string to the flowmeter
-		void ClearBuffer();			// clears window's internal buffer
+	private:
 		// variables used exclusively by ClearBuffer
 		static const int BigBufferSize = 10000;
 		char BigBuffer[BigBufferSize];
@@ -32,7 +32,6 @@ class TsiFlowmeter{
 		static const int TmpBufferSize=200;
 		unsigned char TmpBuffer[TmpBufferSize];
 		unsigned long BytesRead;
-		unsigned long LastBytesRead;
 		RingBuffer * Ring;
 		static const int RingSize = 300;
 		int DiagnosticBuffer[300];

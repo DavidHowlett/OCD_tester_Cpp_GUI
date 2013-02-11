@@ -61,10 +61,12 @@ void TsiFlowmeter::CallMeRegularly(){
 	if(	(DataCount>=6002&&WaitCount >0)
 		||(DataCount>=6000)&&(WaitCount>10)){
 		//there are 6000 bytes  of data and 2 stop bytes in a batch of readings from the tsi.
-		GetNewData();
+		AskForData();
+		ReadFile(TsiPortHandle,TmpBuffer,1,&BytesRead,FALSE);
+		// The TSI sends a single null char to start communication, it has no value
+		// to me and it causes synchronization issues so I dump it
 		RingPosition-=2; // the TSI terminates data with 2 bytes this is not useful so it is deleted
 	}
-	LastBytesRead=BytesRead;
 	ReadFile(		TsiPortHandle,	//HANDLE        hFile,
 							TmpBuffer,      //LPVOID        lpBuffer,
 							TmpBufferSize,   //DWORD         nNumberOfBytesToRead,
@@ -74,17 +76,21 @@ void TsiFlowmeter::CallMeRegularly(){
 	Ring->WriteString(RingPosition+1,BytesRead,TmpBuffer);
 	DataCount+=BytesRead;
 	RingPosition+=BytesRead;
-	if (BytesRead>0)
+	if (BytesRead>0) // I keep track of the length of time since I got incoming data
 		WaitCount=0;
 	else
 		WaitCount++;
 	for(int i=0; i < RingSize; i++)
 		DiagnosticBuffer[i] = Ring->Read(i);
-	for(int i=0;(!TryGetDataWithOffset(i))&&(i>(0-RingSize));i--);
-	//if(BadDataCount>1)
-	//	Sleep(1); // this is used to provide a source breakpoint
+	for(int i=0;i>(0-RingSize);i--)
+		if(TestDataWithOffset(i)){
+			LastMassFlow		= TmpMassFlow;
+			LastTemperature	= TmpTemperature;
+			LastPressure		= TmpPressure;
+			break;
+		}
 }
-bool TsiFlowmeter::TryGetDataWithOffset(int Offset){
+bool TsiFlowmeter::TestDataWithOffset(int Offset){
 		LastByteOfGoodDataset =RingPosition+Offset-DataCount%6;
 		if (LastByteOfGoodDataset<5)
 			return false;// negetive positions in the ring should ne be acsessed
@@ -96,25 +102,14 @@ bool TsiFlowmeter::TryGetDataWithOffset(int Offset){
 			||(1.5<TmpPressure)		||(TmpPressure<0.7)){
 			BadDataCount++;
 			return false;
-		}else{ // I only want to update the data visible to the rest of the program if it is good.
-			LastMassFlow		= TmpMassFlow;
-			LastTemperature	= TmpTemperature;
-			LastPressure		= TmpPressure;
+		}else // I only want to update the data visible to the rest of the program if it is good.
 			return true;
-		}
 }
-void TsiFlowmeter::GetNewData(){
-	ClearBuffer();// this clears window's internal buffer
+void TsiFlowmeter::AskForData(){
+	PurgeComm(TsiPortHandle,PURGE_RXCLEAR&PURGE_TXCLEAR);
 	DataCount = 0;
 	Write("DBFTP1000");
 	Sleep(10); // experimentaly it was found that sleeping for 7 or less was unreliable.
-	ReadFile(		TsiPortHandle,	//HANDLE        hFile,
-							TmpBuffer,      //LPVOID        lpBuffer,
-							1,              //DWORD         nNumberOfBytesToRead,
-							&BytesRead,     //LPDWORD       lpNumberOfBytesRead,
-							FALSE);
-	// The TSI sends a single null char to start communication, it has no value
-	// to me and it causes synchronization issues so I dump it
 }
 float TsiFlowmeter::MassFlow(){
 	return LastMassFlow;
@@ -137,7 +132,7 @@ int TsiFlowmeter::Write(char* ToSend){             	// sends a c string to the f
 	return BytesWritten;
 }
 bool TsiFlowmeter::CheckPresence(){
-	ClearBuffer();// this clears window's internal buffer
+	PurgeComm(TsiPortHandle,PURGE_RXCLEAR&PURGE_TXCLEAR);// this clears window's internal buffer
 	Write("SSR0001"); // the flowmeter should reply "OK" to this.// this also sets the reading rate to max
 	SetCommTimeouts(TsiPortHandle,&WaitForData);
 	ReadFile(		TsiPortHandle,                        //HANDLE        hFile,
@@ -151,10 +146,7 @@ bool TsiFlowmeter::CheckPresence(){
 	else
 		return false;
 }
-void TsiFlowmeter::ClearBuffer(){
-	do
-		ReadFile(TsiPortHandle,BigBuffer,BigBufferSize,&BytesRead,FALSE);
-	while(BytesRead!=0);
-}
 TsiFlowmeter::~TsiFlowmeter(){
+	PurgeComm(TsiPortHandle,PURGE_RXCLEAR&PURGE_TXCLEAR);// this ditches the data in the port
+	CloseHandle(TsiPortHandle);
 }

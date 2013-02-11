@@ -87,7 +87,7 @@ object Form1: TForm1
     Caption = 'Off time'
   end
   object Pause: TButton
-    Left = 231
+    Left = 232
     Top = 141
     Width = 105
     Height = 34
@@ -95,20 +95,12 @@ object Form1: TForm1
     TabOrder = 0
     OnClick = PauseClick
   end
-  object Button2: TButton
-    Left = 231
-    Top = 181
-    Width = 105
-    Height = 34
-    Caption = 'Reset'
-    TabOrder = 1
-  end
   object MassFlowMonitor: TEdit
     Left = 8
     Top = 103
     Width = 80
     Height = 21
-    TabOrder = 2
+    TabOrder = 1
     Text = 'MassFlowMonitor'
   end
   object TemperatureMonitor: TEdit
@@ -116,7 +108,7 @@ object Form1: TForm1
     Top = 103
     Width = 81
     Height = 21
-    TabOrder = 3
+    TabOrder = 2
     Text = 'TemperatureMonitor'
   end
   object PressureMonitor: TEdit
@@ -124,7 +116,7 @@ object Form1: TForm1
     Top = 103
     Width = 83
     Height = 21
-    TabOrder = 4
+    TabOrder = 3
     Text = 'PressureMonitor'
   end
   object Button3: TButton
@@ -133,7 +125,7 @@ object Form1: TForm1
     Width = 105
     Height = 34
     Caption = 'Output data to file'
-    TabOrder = 5
+    TabOrder = 4
   end
   object PulseHistory: TListBox
     Left = 8
@@ -147,14 +139,14 @@ object Form1: TForm1
       'volume, on time, off time, cycle time'
       'volume, on time, off time, cycle time'
       '')
-    TabOrder = 6
+    TabOrder = 5
   end
   object AvgVolume: TEdit
     Left = 8
     Top = 308
     Width = 66
     Height = 21
-    TabOrder = 7
+    TabOrder = 6
     Text = 'AvgVolume'
   end
   object AvgOnTime: TEdit
@@ -162,7 +154,7 @@ object Form1: TForm1
     Top = 308
     Width = 66
     Height = 21
-    TabOrder = 8
+    TabOrder = 7
     Text = 'AvgOnTime'
   end
   object AvgOffTime: TEdit
@@ -170,7 +162,7 @@ object Form1: TForm1
     Top = 308
     Width = 66
     Height = 21
-    TabOrder = 9
+    TabOrder = 8
     Text = 'AvgOffTime'
   end
   object AvgCycleTime: TEdit
@@ -178,7 +170,7 @@ object Form1: TForm1
     Top = 308
     Width = 65
     Height = 21
-    TabOrder = 10
+    TabOrder = 9
     Text = 'AvgCycleTime'
   end
   object EventLog: TListBox
@@ -188,6 +180,14 @@ object Form1: TForm1
     Height = 49
     Anchors = [akLeft, akTop, akRight]
     ItemHeight = 13
+    TabOrder = 10
+  end
+  object Button2: TButton
+    Left = 231
+    Top = 181
+    Width = 105
+    Height = 34
+    Caption = 'Reset'
     TabOrder = 11
   end
   object FastTimer: TTimer

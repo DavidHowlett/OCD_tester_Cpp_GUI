@@ -10,13 +10,12 @@ TsiFlowmeter::TsiFlowmeter(int Port){
 	LastMassFlow 		= -2;
 	LastTemperature = -2;
 	LastPressure 		= -2;
-	DataCount 			= 10000; // this just causes the first request for data to be sent
+	DataCount 			= 10000; // this causes the first request for data to be sent
 	WaitCount				= 0;
 	BadDataCount		= 0;
 	Ring = new RingBuffer(RingSize);
-	// fill the ring buffer with null chars
 	for (RingPosition=0;RingPosition<RingSize;RingPosition++)
-		Ring->Write(RingPosition,0);
+		Ring->Write(RingPosition,0); // fill the ring buffer with null chars
 	RingPosition=-1;// as there have been no chars written to the array at this point
 									// it is as though the most recent char to have been written to
 									// the array is -1
@@ -79,18 +78,16 @@ void TsiFlowmeter::CallMeRegularly(){
 		WaitCount=0;
 	else
 		WaitCount++;
-	for (int i = 0; i < RingSize; i++)
+	for(int i=0; i < RingSize; i++)
 		DiagnosticBuffer[i] = Ring->Read(i);
-	LastByteOfGoodDataset =RingPosition-DataCount%6;
-	if (LastByteOfGoodDataset>=5){
-		for(int i=0;(!TryGetDataWithOffset(i))&&(i>(0-RingSize));i--);
-	}
-
+	for(int i=0;(!TryGetDataWithOffset(i))&&(i>(0-RingSize));i--);
 	//if(BadDataCount>1)
 	//	Sleep(1); // this is used to provide a source breakpoint
 }
 bool TsiFlowmeter::TryGetDataWithOffset(int Offset){
 		LastByteOfGoodDataset =RingPosition+Offset-DataCount%6;
+		if (LastByteOfGoodDataset<5)
+			return false;// negetive positions in the ring should ne be acsessed
 		TmpMassFlow		=(Ring->Read(LastByteOfGoodDataset-5)*265.0+Ring->Read(LastByteOfGoodDataset-4))/1000.0;
 		TmpTemperature=(Ring->Read(LastByteOfGoodDataset-3)*265.0+Ring->Read(LastByteOfGoodDataset-2))/100.0;
 		TmpPressure		=(Ring->Read(LastByteOfGoodDataset-1)*265.0+Ring->Read(LastByteOfGoodDataset))/10000.0;
@@ -110,16 +107,14 @@ void TsiFlowmeter::GetNewData(){
 	ClearBuffer();// this clears window's internal buffer
 	DataCount = 0;
 	Write("DBFTP1000");
-	//SetCommTimeouts(TsiPortHandle,&WaitForData);
 	Sleep(10); // experimentaly it was found that sleeping for 7 or less was unreliable.
-	// The TSI sends a single null char to start communication, it has no value
-	// to me and it causes synchronization issues so I dump it
 	ReadFile(		TsiPortHandle,	//HANDLE        hFile,
 							TmpBuffer,      //LPVOID        lpBuffer,
 							1,              //DWORD         nNumberOfBytesToRead,
 							&BytesRead,     //LPDWORD       lpNumberOfBytesRead,
 							FALSE);
-	//SetCommTimeouts(TsiPortHandle,&StdTimeouts);
+	// The TSI sends a single null char to start communication, it has no value
+	// to me and it causes synchronization issues so I dump it
 }
 float TsiFlowmeter::MassFlow(){
 	return LastMassFlow;

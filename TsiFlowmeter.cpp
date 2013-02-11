@@ -62,7 +62,6 @@ void TsiFlowmeter::CallMeRegularly(){
 	if(	(DataCount>=6002&&WaitCount >0)
 		||(DataCount>=6000)&&(WaitCount>10)){
 		//there are 6000 bytes  of data and 2 stop bytes in a batch of readings from the tsi.
-
 		GetNewData();
 		RingPosition-=2; // the TSI terminates data with 2 bytes this is not useful so it is deleted
 	}
@@ -84,25 +83,28 @@ void TsiFlowmeter::CallMeRegularly(){
 		DiagnosticBuffer[i] = Ring->Read(i);
 	LastByteOfGoodDataset =RingPosition-DataCount%6;
 	if (LastByteOfGoodDataset>=5){
+		for(int i=0;(!TryGetDataWithOffset(i))&&(i>(0-RingSize));i--);
+	}
+
+	//if(BadDataCount>1)
+	//	Sleep(1); // this is used to provide a source breakpoint
+}
+bool TsiFlowmeter::TryGetDataWithOffset(int Offset){
+		LastByteOfGoodDataset =RingPosition+Offset-DataCount%6;
 		TmpMassFlow		=(Ring->Read(LastByteOfGoodDataset-5)*265.0+Ring->Read(LastByteOfGoodDataset-4))/1000.0;
 		TmpTemperature=(Ring->Read(LastByteOfGoodDataset-3)*265.0+Ring->Read(LastByteOfGoodDataset-2))/100.0;
 		TmpPressure		=(Ring->Read(LastByteOfGoodDataset-1)*265.0+Ring->Read(LastByteOfGoodDataset))/10000.0;
 		if(	(200<TmpMassFlow)		||(TmpMassFlow<-0.1)
-			||(60<TmpTemperature)	||(TmpTemperature<10)
-			||(1.5<TmpPressure)		||(TmpPressure<0.5)){
+			||(50<TmpTemperature)	||(TmpTemperature<10)
+			||(1.5<TmpPressure)		||(TmpPressure<0.7)){
 			BadDataCount++;
+			return false;
 		}else{ // I only want to update the data visible to the rest of the program if it is good.
 			LastMassFlow		= TmpMassFlow;
 			LastTemperature	= TmpTemperature;
 			LastPressure		= TmpPressure;
-
-    }
-	}
-	if(BadDataCount>1)
-		Sleep(1); // this is used to provide a source breakpoint
-}
-int TsiFlowmeter::CheckAndSyncData(){
-
+			return true;
+		}
 }
 void TsiFlowmeter::GetNewData(){
 	ClearBuffer();// this clears window's internal buffer

@@ -14,7 +14,7 @@ class TsiFlowmeter{
 		~TsiFlowmeter();
 	private:
 		void GetNewData();
-		int CheckAndSyncData();
+		bool TryGetDataWithOffset(int Offset);
 		int Write(char*);       // sends a c string to the flowmeter
 		void ClearBuffer();			// clears window's internal buffer
 		// variables used exclusively by ClearBuffer

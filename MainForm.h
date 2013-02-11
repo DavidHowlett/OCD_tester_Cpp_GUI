@@ -35,7 +35,7 @@ __published:	// IDE-managed Components
 	TEdit *AvgOffTime;
 	TEdit *AvgCycleTime;
 	TTimer *FastTimer;
-	TListBox *FlowmeterStatus;
+	TListBox *EventLog;
 	void __fastcall FastTimerTimer(TObject *Sender);
 	void __fastcall PauseClick(TObject *Sender);
 private:	// User declarations

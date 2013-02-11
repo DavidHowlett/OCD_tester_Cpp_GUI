@@ -14,18 +14,20 @@ class TsiFlowmeter{
 		~TsiFlowmeter();
 	private:
 		void GetNewData();
+		int CheckAndSyncData();
 		int Write(char*);       // sends a c string to the flowmeter
 		void ClearBuffer();			// clears window's internal buffer
 		// variables used exclusively by ClearBuffer
 		static const int BigBufferSize = 10000;
 		char BigBuffer[BigBufferSize];
 
-		// variables used exclusively by CallMeRegularly
 		long long RingPosition; // this is the position of the most recently written char in the buffer
 		int DataCount; 					// this is the number of valid chars of data put into the buffer since the data request
 														//the last request of the TSI for data. This does not include the initial null char.
+		int WaitCount; 					// this is the number of times in a row no data has been recieved
+		int BadDataCount;
+		long long LastByteOfGoodDataset;
 
-		// other private variables
 		HANDLE TsiPortHandle;
 		static const int TmpBufferSize=200;
 		unsigned char TmpBuffer[TmpBufferSize];
@@ -33,8 +35,12 @@ class TsiFlowmeter{
 		unsigned long LastBytesRead;
 		RingBuffer * Ring;
 		static const int RingSize = 300;
+		int DiagnosticBuffer[300];
 		COMMTIMEOUTS StdTimeouts;
 		COMMTIMEOUTS WaitForData;
+		float TmpMassFlow;
+		float TmpTemperature;
+		float	TmpPressure;
 		float LastMassFlow;
 		float LastTemperature;
 		float LastPressure;

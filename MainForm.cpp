@@ -27,7 +27,7 @@ __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner)
 {
 	Settings = new SettingsFileManager;
 	Settings->ReadFile();
-	GenericFlowmeter = new FlowmeterManager(Settings,FlowmeterStatus);//I want this class to always have acsess to these pointers
+	GenericFlowmeter = new FlowmeterManager(Settings,EventLog);//I want this class to always have acsess to these pointers
 	GenericFlowmeter->Setup();
 }
 //---------------------------------------------------------------------------

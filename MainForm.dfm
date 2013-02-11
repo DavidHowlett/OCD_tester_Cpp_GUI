@@ -33,9 +33,9 @@ object Form1: TForm1
   object Label1: TLabel
     Left = 8
     Top = 8
-    Width = 114
+    Width = 45
     Height = 13
-    Caption = 'Log of flowmeter status'
+    Caption = 'Event log'
   end
   object Label4: TLabel
     Left = 8
@@ -181,7 +181,7 @@ object Form1: TForm1
     TabOrder = 10
     Text = 'AvgCycleTime'
   end
-  object FlowmeterStatus: TListBox
+  object EventLog: TListBox
     Left = 8
     Top = 27
     Width = 324
@@ -189,7 +189,6 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akRight]
     ItemHeight = 13
     TabOrder = 11
-    ExplicitWidth = 328
   end
   object FastTimer: TTimer
     Interval = 1

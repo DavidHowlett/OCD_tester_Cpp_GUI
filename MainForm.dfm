@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'OCD test program'
-  ClientHeight = 344
-  ClientWidth = 345
+  ClientHeight = 493
+  ClientWidth = 709
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,126 +12,137 @@ object Form1: TForm1
   Font.Style = []
   OldCreateOrder = False
   DesignSize = (
-    345
-    344)
+    709
+    493)
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel
-    Left = 8
-    Top = 267
+    Left = 25
+    Top = 187
     Width = 87
     Height = 13
     Caption = 'Running averages'
   end
   object Label3: TLabel
-    Left = 8
-    Top = 141
+    Left = 248
+    Top = 12
     Width = 80
     Height = 13
     Caption = 'Record of pulses'
   end
   object Label1: TLabel
-    Left = 8
-    Top = 8
+    Left = 250
+    Top = 150
     Width = 45
     Height = 13
     Caption = 'Event log'
   end
   object Label4: TLabel
     Left = 8
-    Top = 84
+    Top = 8
     Width = 86
     Height = 13
     Caption = 'Mass flow (SCCM)'
   end
   object Label5: TLabel
-    Left = 208
-    Top = 84
+    Left = 8
+    Top = 65
     Width = 104
     Height = 13
     Caption = 'Temperature (celcius)'
   end
   object Label6: TLabel
-    Left = 108
-    Top = 84
+    Left = 8
+    Top = 38
     Width = 69
     Height = 13
     Caption = 'Pressure (bar)'
   end
   object Label7: TLabel
-    Left = 8
-    Top = 286
+    Left = 25
+    Top = 214
     Width = 55
     Height = 13
     Caption = 'Volume (ml)'
   end
   object Label8: TLabel
-    Left = 80
-    Top = 286
+    Left = 25
+    Top = 233
     Width = 37
     Height = 13
     Caption = 'On time'
   end
   object Label9: TLabel
-    Left = 224
-    Top = 286
+    Left = 25
+    Top = 310
     Width = 49
     Height = 13
     Caption = 'Cycle time'
   end
   object Label10: TLabel
-    Left = 152
-    Top = 286
+    Left = 25
+    Top = 266
     Width = 39
     Height = 13
     Caption = 'Off time'
   end
-  object Pause: TButton
-    Left = 232
-    Top = 141
+  object Label11: TLabel
+    Left = 8
+    Top = 96
+    Width = 77
+    Height = 13
+    Caption = 'Pulses to record'
+  end
+  object Start: TButton
+    Left = 7
+    Top = 123
     Width = 105
     Height = 34
+    Anchors = [akTop, akRight]
     Caption = 'Start'
     TabOrder = 0
-    OnClick = PauseClick
+    OnClick = StartClick
   end
   object MassFlowMonitor: TEdit
-    Left = 8
-    Top = 103
-    Width = 80
+    Left = 100
+    Top = 8
+    Width = 83
     Height = 21
     TabOrder = 1
     Text = 'MassFlowMonitor'
   end
   object TemperatureMonitor: TEdit
-    Left = 208
-    Top = 103
-    Width = 81
+    Left = 118
+    Top = 65
+    Width = 84
     Height = 21
     TabOrder = 2
     Text = 'TemperatureMonitor'
   end
   object PressureMonitor: TEdit
-    Left = 108
-    Top = 103
+    Left = 100
+    Top = 38
     Width = 83
     Height = 21
     TabOrder = 3
     Text = 'PressureMonitor'
   end
-  object Button3: TButton
-    Left = 231
-    Top = 221
+  object OutputData: TButton
+    Left = 118
+    Top = 123
     Width = 105
     Height = 34
+    Anchors = [akTop, akRight]
     Caption = 'Output data to file'
     TabOrder = 4
+    OnClick = OutputDataClick
   end
   object PulseHistory: TListBox
-    Left = 8
-    Top = 160
-    Width = 217
+    Left = 250
+    Top = 38
+    Width = 419
     Height = 101
+    Anchors = [akLeft, akTop, akRight]
     ItemHeight = 13
     Items.Strings = (
       'volume, on time, off time, cycle time'
@@ -142,58 +153,58 @@ object Form1: TForm1
     TabOrder = 5
   end
   object AvgVolume: TEdit
-    Left = 8
-    Top = 308
+    Left = 117
+    Top = 206
     Width = 66
     Height = 21
     TabOrder = 6
     Text = 'AvgVolume'
   end
   object AvgOnTime: TEdit
-    Left = 80
-    Top = 308
+    Left = 117
+    Top = 233
     Width = 66
     Height = 21
     TabOrder = 7
     Text = 'AvgOnTime'
   end
   object AvgOffTime: TEdit
-    Left = 152
-    Top = 308
+    Left = 117
+    Top = 263
     Width = 66
     Height = 21
     TabOrder = 8
     Text = 'AvgOffTime'
   end
   object AvgCycleTime: TEdit
-    Left = 224
-    Top = 308
+    Left = 118
+    Top = 307
     Width = 65
     Height = 21
     TabOrder = 9
     Text = 'AvgCycleTime'
   end
-  object EventLog: TListBox
-    Left = 8
-    Top = 27
-    Width = 324
-    Height = 49
+  object Log: TListBox
+    Left = 253
+    Top = 169
+    Width = 416
+    Height = 77
     Anchors = [akLeft, akTop, akRight]
     ItemHeight = 13
     TabOrder = 10
   end
-  object Button2: TButton
-    Left = 231
-    Top = 181
-    Width = 105
-    Height = 34
-    Caption = 'Reset'
+  object PulsesToRecord: TEdit
+    Left = 112
+    Top = 96
+    Width = 97
+    Height = 21
     TabOrder = 11
+    Text = 'PulsesToRecord'
   end
   object FastTimer: TTimer
     Interval = 1
     OnTimer = FastTimerTimer
-    Left = 296
-    Top = 268
+    Left = 312
+    Top = 292
   end
 end

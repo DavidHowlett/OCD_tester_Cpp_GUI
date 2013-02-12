@@ -15,7 +15,7 @@ class TForm1 : public TForm
 __published:	// IDE-managed Components
 	TLabel *Label2;
 	TLabel *Label3;
-	TButton *Pause;
+	TButton *Start;
 	TEdit *MassFlowMonitor;
 	TLabel *Label1;
 	TLabel *Label4;
@@ -23,7 +23,7 @@ __published:	// IDE-managed Components
 	TLabel *Label6;
 	TEdit *TemperatureMonitor;
 	TEdit *PressureMonitor;
-	TButton *Button3;
+	TButton *OutputData;
 	TListBox *PulseHistory;
 	TLabel *Label7;
 	TLabel *Label8;
@@ -34,10 +34,12 @@ __published:	// IDE-managed Components
 	TEdit *AvgOffTime;
 	TEdit *AvgCycleTime;
 	TTimer *FastTimer;
-	TListBox *EventLog;
-	TButton *Button2;
+	TListBox *Log;
+	TLabel *Label11;
+	TEdit *PulsesToRecord;
 	void __fastcall FastTimerTimer(TObject *Sender);
-	void __fastcall PauseClick(TObject *Sender);
+	void __fastcall OutputDataClick(TObject *Sender);
+	void __fastcall StartClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);

@@ -8,6 +8,7 @@ class TsiFlowmeter{
 		TsiFlowmeter(int Port);
 		bool CheckPresence();		  	// checks if the flowmeter answers to sent data
 		void CallMeRegularly();
+		bool IsThereNewData();
 		float MassFlow();
 		float Temperature();
 		float Pressure();
@@ -26,7 +27,9 @@ class TsiFlowmeter{
 														//the last request of the TSI for data. This does not include the initial null char.
 		int WaitCount; 					// this is the number of times in a row no data has been recieved
 		int BadDataCount;
-		long long LastByteOfGoodDataset;
+		long long PositionToTry;
+		long long PreviousGoodPosition;
+		bool ThereIsNewData;
 
 		HANDLE TsiPortHandle;
 		static const int TmpBufferSize=200;

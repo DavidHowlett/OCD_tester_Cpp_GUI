@@ -5,46 +5,41 @@
 #include <windows>
 #include <cassert>
 #include <new>
+#include <time.h> // this is not used to give the time but it is used to process the time provided by the API
 #pragma hdrstop
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-#include <time.h> // this is not used to give the time but it is used to process the time provided by the API
 // My Header Files ----------------------------------------------------------
 #include "MainForm.h"
 #include "SettingsFileManager.h"
 #include "FlowmeterManager.h"
 // My Global Variables-------------------------------------------------------
-char LastMassFlowString[100];
-char LastTemperatureString[100];
-char LastPressureString[100];
-const int 	MaxPulsesInAReading = 100;
-const int 	MaxReadingsBeforeOutputtingAnalysisFile = 100;
-const int 	RawDataArraySize = 100000;
-bool 	FlowmeterExists = false;
-int    	ReadingsStoredInArrays = 0;      // I choose to define a reading to be a set of pulses that are grouped together and avaraged to give a result
-double 	TimeOfReading			  	[RawDataArraySize]; // this is the time in milliseconds
-float 	FlowReading				[RawDataArraySize]; // the raw data arrays have been declared here to avoid putting the data on the stack
-int		RawDataFileAssosiatedWithReading [MaxReadingsBeforeOutputtingAnalysisFile];
-int 	PulsesInReading			[MaxReadingsBeforeOutputtingAnalysisFile];// each reading will be made up of many pulses (3 is expected)
-bool  	TooManyPulsesInReading		[MaxReadingsBeforeOutputtingAnalysisFile];// this notes if there was more data then was recorded
-float	PulsePeakFlow 			[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
-float	PulseCycleTime 			[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
-float	PulseOnTime 				[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
-float	PulseVolume 				[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
-float	AveragePeakFlow 			[MaxReadingsBeforeOutputtingAnalysisFile];
-float	AverageCycleTime 			[MaxReadingsBeforeOutputtingAnalysisFile];
-float	AveragePulseOnTime 		[MaxReadingsBeforeOutputtingAnalysisFile];
-float	AveragePulseVolume 		[MaxReadingsBeforeOutputtingAnalysisFile];
+const int	MaxPulsesInAReading = 100;
+const int MaxReadingsBeforeOutputtingAnalysisFile = 100;
+const int RawDataArraySize = 100000;
+bool 			FlowmeterExists = false;
+int    		ReadingsStoredInArrays = 0;      // I choose to define a reading to be a set of pulses that are grouped together and avaraged to give a result
+double 		TimeOfReading			  	[RawDataArraySize]; // this is the time in milliseconds
+float 		FlowReading						[RawDataArraySize]; // the raw data arrays have been declared here to avoid putting the data on the stack
+int				RawDataFileAssosiatedWithReading [MaxReadingsBeforeOutputtingAnalysisFile];
+int 			PulsesInReading				[MaxReadingsBeforeOutputtingAnalysisFile];// each reading will be made up of many pulses (3 is expected)
+bool  		TooManyPulsesInReading[MaxReadingsBeforeOutputtingAnalysisFile];// this notes if there was more data then was recorded
+float			PulsePeakFlow 				[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
+float			PulseCycleTime 				[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
+float			PulseOnTime 					[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
+float			PulseVolume 					[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
+float			AveragePeakFlow 			[MaxReadingsBeforeOutputtingAnalysisFile];
+float			AverageCycleTime 			[MaxReadingsBeforeOutputtingAnalysisFile];
+float			AveragePulseOnTime 		[MaxReadingsBeforeOutputtingAnalysisFile];
+float			AveragePulseVolume 		[MaxReadingsBeforeOutputtingAnalysisFile];
 // My Classes ---------------------------------------------------------------
 TForm1 *Form1;
 TListBox * MainLog;
 SettingsFileManager * Settings;
 FlowmeterManager * GenericFlowmeter;
 // My Function Declarations----------------------------------------------------
-void	Setup();
 void	ZeroRawDataArrays();
 void	ZeroProcessedDataArrays();
-void	UserInteractionAndAction(); // gets user input and performs the action requested by the user
 void	GetData(int number_of_pulses_to_record);      // this records data from the flowmeter for a user specified number of seconds, calling it will create one reading
 int		ProcessData();
 void	FindPulseAverages(int reading_of_interest);
@@ -67,15 +62,15 @@ __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner)
 void __fastcall TForm1::FastTimerTimer(TObject *Sender)
 {
 	GenericFlowmeter->CallMeRegularly();
-
-	sprintf(LastMassFlowString,"%f",GenericFlowmeter->LastMassFlow);
-	MassFlowMonitor->Text = LastMassFlowString;
-
-	sprintf(LastTemperatureString,"%f",GenericFlowmeter->LastTemperature);
-	TemperatureMonitor->Text = LastTemperatureString;
-
-	sprintf(LastPressureString,"%f",GenericFlowmeter->LastPressure);
-	PressureMonitor->Text = LastPressureString;
+	if (GenericFlowmeter->IsThereNewData()) {// there are some things that should only be done when there is new data
+		char tmpString[100];
+		sprintf(tmpString,"%f",GenericFlowmeter->LastMassFlow);
+		MassFlowMonitor->Text = tmpString;
+		sprintf(tmpString,"%f",GenericFlowmeter->LastTemperature);
+		TemperatureMonitor->Text = tmpString;
+		sprintf(tmpString,"%f",GenericFlowmeter->LastPressure);
+		PressureMonitor->Text = tmpString;
+	}
 }
 void __fastcall TForm1::OutputDataClick(TObject *Sender)
 {
@@ -122,9 +117,6 @@ void ZeroProcessedDataArrays(){
 			PulseVolume[j][i]=0;
 		}
 	}
-}
-void UserInteractionAndAction(){
-
 }
 void GetData(int pulses_to_record){
 	int RecordedPulses = 0;

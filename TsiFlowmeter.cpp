@@ -13,6 +13,7 @@ TsiFlowmeter::TsiFlowmeter(int Port){
 	DataCount 			= 10000; // this causes the first request for data to be sent
 	WaitCount				= 0;
 	BadDataCount		= 0;
+	PreviousGoodPosition = -1; // this is deliberately initialised to a bogus position
 	Ring = new RingBuffer(RingSize);
 	for (RingPosition=0;RingPosition<RingSize;RingPosition++)
 		Ring->Write(RingPosition,0); // fill the ring buffer with null chars
@@ -91,19 +92,23 @@ void TsiFlowmeter::CallMeRegularly(){
 		}
 }
 bool TsiFlowmeter::TestDataWithOffset(int Offset){
-		LastByteOfGoodDataset =RingPosition+Offset-DataCount%6;
-		if (LastByteOfGoodDataset<5)
+		PositionToTry =RingPosition+Offset-DataCount%6; // in an ideal world this should be the last byte of a good data set
+		if (PositionToTry<5)
 			return false;// negetive positions in the ring should ne be acsessed
-		TmpMassFlow		=(Ring->Read(LastByteOfGoodDataset-5)*265.0+Ring->Read(LastByteOfGoodDataset-4))/1000.0;
-		TmpTemperature=(Ring->Read(LastByteOfGoodDataset-3)*265.0+Ring->Read(LastByteOfGoodDataset-2))/100.0;
-		TmpPressure		=(Ring->Read(LastByteOfGoodDataset-1)*265.0+Ring->Read(LastByteOfGoodDataset))/10000.0;
+		TmpMassFlow		=(Ring->Read(PositionToTry-5)*265.0+Ring->Read(PositionToTry-4))/1000.0;
+		TmpTemperature=(Ring->Read(PositionToTry-3)*265.0+Ring->Read(PositionToTry-2))/100.0;
+		TmpPressure		=(Ring->Read(PositionToTry-1)*265.0+Ring->Read(PositionToTry))/10000.0;
 		if(	(200<TmpMassFlow)		||(TmpMassFlow<-0.1)
 			||(50<TmpTemperature)	||(TmpTemperature<10)
 			||(1.5<TmpPressure)		||(TmpPressure<0.7)){
 			BadDataCount++;
 			return false;
-		}else // I only want to update the data visible to the rest of the program if it is good.
+		}else{ // I only want to update the data visible to the rest of the program if it is good.
+			if (PreviousGoodPosition!=PositionToTry){
+				ThereIsNewData = true;
+			}
 			return true;
+		}
 }
 void TsiFlowmeter::AskForData(){
 	PurgeComm(TsiPortHandle,PURGE_RXCLEAR&PURGE_TXCLEAR);
@@ -111,6 +116,14 @@ void TsiFlowmeter::AskForData(){
 	Write("DBFTP1000");
 	Sleep(10); // experimentaly it was found that sleeping for 7 or less was unreliable.
 }
+bool TsiFlowmeter::IsThereNewData(){
+	// the over all intention is that the other classes cna detect if there is
+	// new data avalible
+	bool tmp=ThereIsNewData;
+	ThereIsNewData = false;
+	return tmp;
+}
+
 float TsiFlowmeter::MassFlow(){
 	return LastMassFlow;
 }

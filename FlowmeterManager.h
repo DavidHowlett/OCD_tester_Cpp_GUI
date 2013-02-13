@@ -9,6 +9,7 @@ class FlowmeterManager{
 		FlowmeterManager(SettingsFileManager*, TListBox*);
 		int Setup(); // this method should be repetitively called until there is a valid flowmeter setup
 		int CallMeRegularly();
+		bool IsThereNewData();
 		~FlowmeterManager();
 	public:
 		bool FlowmeterReady; // this should be true if the flowmeter has been setup and the caller of this class can safely get data from it

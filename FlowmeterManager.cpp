@@ -119,6 +119,13 @@ FlowmeterManager::CallMeRegularly(){
 	}
 	return 1;
 }
+bool FlowmeterManager::IsThereNewData(){
+	if (Alicat == FlowmeterType)
+		return true;// this should probably be fixed later, the alicat class lacks the desired functionality
+	if (Tsi == FlowmeterType)
+		return TsiPointer->IsThereNewData();
+	return false; // if there is no flowmeter there is no new data
+}
 FlowmeterManager::~FlowmeterManager(){
 	delete AlicatPointer;
 	delete TsiPointer;

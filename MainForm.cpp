@@ -17,7 +17,6 @@
 const int	MaxPulsesInAReading = 100;
 const int MaxReadingsBeforeOutputtingAnalysisFile = 100;
 const int RawDataArraySize = 100000;
-bool 			FlowmeterExists = false;
 int    		ReadingsStoredInArrays = 0;      // I choose to define a reading to be a set of pulses that are grouped together and avaraged to give a result
 double 		TimeOfReading			  	[RawDataArraySize]; // this is the time in milliseconds
 float 		FlowReading						[RawDataArraySize]; // the raw data arrays have been declared here to avoid putting the data on the stack
@@ -37,7 +36,7 @@ TForm1 *Form1;
 TListBox * MainLog;
 SettingsFileManager * Settings;
 FlowmeterManager * GenericFlowmeter;
-// My Function Declarations----------------------------------------------------
+// My Function Declarations--------------------------------------------------
 void	ZeroRawDataArrays();
 void	ZeroProcessedDataArrays();
 void	GetData(int number_of_pulses_to_record);      // this records data from the flowmeter for a user specified number of seconds, calling it will create one reading
@@ -120,9 +119,9 @@ void ZeroProcessedDataArrays(){
 }
 void GetData(int pulses_to_record){
 	int RecordedPulses = 0;
-	while(-2==GenericFlowmeter->LastMassFlow){
-		Sleep(1);// the flowmeter returns -2 when it does not have data, this code waits until the flowmeter has data, idealy this code should never need to run as the flowmeter should have data by this point in the program. If the flowmeter is connected backwards it will give negetive flow values but this will not cause  problems unless it consistantly returns a value of -2
-	}
+	//while(-2==GenericFlowmeter->LastMassFlow){
+	//	Sleep(1);// the flowmeter returns -2 when it does not have data, this code waits until the flowmeter has data, idealy this code should never need to run as the flowmeter should have data by this point in the program. If the flowmeter is connected backwards it will give negetive flow values but this will not cause  problems unless it consistantly returns a value of -2
+	//}
 	LARGE_INTEGER frequency;        // ticks per second
 	LARGE_INTEGER start_time, current_time;           // ticks
 	QueryPerformanceFrequency(&frequency);  // get ticks per second

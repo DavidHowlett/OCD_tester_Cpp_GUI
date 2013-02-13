@@ -17,8 +17,8 @@ object Form1: TForm1
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel
-    Left = 25
-    Top = 187
+    Left = 8
+    Top = 227
     Width = 87
     Height = 13
     Caption = 'Running averages'
@@ -59,29 +59,29 @@ object Form1: TForm1
     Caption = 'Pressure (bar)'
   end
   object Label7: TLabel
-    Left = 25
-    Top = 214
+    Left = 8
+    Top = 254
     Width = 55
     Height = 13
     Caption = 'Volume (ml)'
   end
   object Label8: TLabel
-    Left = 25
-    Top = 233
+    Left = 8
+    Top = 273
     Width = 37
     Height = 13
     Caption = 'On time'
   end
   object Label9: TLabel
-    Left = 25
-    Top = 310
+    Left = 8
+    Top = 350
     Width = 49
     Height = 13
     Caption = 'Cycle time'
   end
   object Label10: TLabel
-    Left = 25
-    Top = 266
+    Left = 8
+    Top = 306
     Width = 39
     Height = 13
     Caption = 'Off time'
@@ -92,6 +92,13 @@ object Form1: TForm1
     Width = 77
     Height = 13
     Caption = 'Pulses to record'
+  end
+  object Label12: TLabel
+    Left = 8
+    Top = 168
+    Width = 79
+    Height = 13
+    Caption = 'Pulses Recorded'
   end
   object Start: TButton
     Left = 7
@@ -153,32 +160,32 @@ object Form1: TForm1
     TabOrder = 5
   end
   object AvgVolume: TEdit
-    Left = 117
-    Top = 206
+    Left = 100
+    Top = 246
     Width = 66
     Height = 21
     TabOrder = 6
     Text = 'AvgVolume'
   end
   object AvgOnTime: TEdit
-    Left = 117
-    Top = 233
+    Left = 100
+    Top = 273
     Width = 66
     Height = 21
     TabOrder = 7
     Text = 'AvgOnTime'
   end
   object AvgOffTime: TEdit
-    Left = 117
-    Top = 263
+    Left = 100
+    Top = 303
     Width = 66
     Height = 21
     TabOrder = 8
     Text = 'AvgOffTime'
   end
   object AvgCycleTime: TEdit
-    Left = 118
-    Top = 307
+    Left = 101
+    Top = 347
     Width = 65
     Height = 21
     TabOrder = 9
@@ -200,6 +207,14 @@ object Form1: TForm1
     Height = 21
     TabOrder = 11
     Text = 'PulsesToRecord'
+  end
+  object PulsesRecorded: TEdit
+    Left = 112
+    Top = 168
+    Width = 81
+    Height = 21
+    TabOrder = 12
+    Text = 'PulsesRecorded'
   end
   object FastTimer: TTimer
     Interval = 1

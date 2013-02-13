@@ -13,38 +13,11 @@
 #include "MainForm.h"
 #include "SettingsFileManager.h"
 #include "FlowmeterManager.h"
-// My Global Variables-------------------------------------------------------
-const int	MaxPulsesInAReading = 100;
-const int MaxReadingsBeforeOutputtingAnalysisFile = 100;
-const int RawDataArraySize = 100000;
-int    		ReadingsStoredInArrays = 0;      // I choose to define a reading to be a set of pulses that are grouped together and avaraged to give a result
-double 		TimeOfReading			  	[RawDataArraySize]; // this is the time in milliseconds
-float 		FlowReading						[RawDataArraySize]; // the raw data arrays have been declared here to avoid putting the data on the stack
-int				RawDataFileAssosiatedWithReading [MaxReadingsBeforeOutputtingAnalysisFile];
-int 			PulsesInReading				[MaxReadingsBeforeOutputtingAnalysisFile];// each reading will be made up of many pulses (3 is expected)
-bool  		TooManyPulsesInReading[MaxReadingsBeforeOutputtingAnalysisFile];// this notes if there was more data then was recorded
-float			PulsePeakFlow 				[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
-float			PulseCycleTime 				[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
-float			PulseOnTime 					[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
-float			PulseVolume 					[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
-float			AveragePeakFlow 			[MaxReadingsBeforeOutputtingAnalysisFile];
-float			AverageCycleTime 			[MaxReadingsBeforeOutputtingAnalysisFile];
-float			AveragePulseOnTime 		[MaxReadingsBeforeOutputtingAnalysisFile];
-float			AveragePulseVolume 		[MaxReadingsBeforeOutputtingAnalysisFile];
 // My Classes ---------------------------------------------------------------
 TForm1 *Form1;
 TListBox * MainLog;
 SettingsFileManager * Settings;
 FlowmeterManager * GenericFlowmeter;
-// My Function Declarations--------------------------------------------------
-void	ZeroRawDataArrays();
-void	ZeroProcessedDataArrays();
-void	GetData(int number_of_pulses_to_record);      // this records data from the flowmeter for a user specified number of seconds, calling it will create one reading
-int		ProcessData();
-void	FindPulseAverages(int reading_of_interest);
-void	PutProcessedDataOnConsole();
-void	SaveRawData();     // this saves the raw experemental data to a text file. the int passed to it indicates the file number that it should be saved to
-void	SaveProcessedData();
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner)
 {
@@ -56,6 +29,10 @@ __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner)
 	MainLog = Log;
 	ZeroRawDataArrays();
 	ZeroProcessedDataArrays();
+	ReadingsStoredInArrays=0;
+	RecordingInProgress = false;
+	QueryPerformanceFrequency(&Frequency);  // get ticks per second
+	ReadingsInRawDataArray = 0;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FastTimerTimer(TObject *Sender)
@@ -69,39 +46,48 @@ void __fastcall TForm1::FastTimerTimer(TObject *Sender)
 		TemperatureMonitor->Text = tmpString;
 		sprintf(tmpString,"%f",GenericFlowmeter->LastPressure);
 		PressureMonitor->Text = tmpString;
+		if(RecordingInProgress){
+			GetDataPoint();
+			FindPulseAverages(ReadingsStoredInArrays);
+		}
 	}
+
 }
 void __fastcall TForm1::OutputDataClick(TObject *Sender)
 {
 	SaveProcessedData();
 }
-
 void __fastcall TForm1::StartClick(TObject *Sender)
 {
-	int NumberOfPulsesToRecord=StrToInt(PulsesToRecord->Text);
-	if (GenericFlowmeter->FlowmeterReady) {
-		if (NumberOfPulsesToRecord <= MaxPulsesInAReading){
-			ZeroRawDataArrays();
-			GetData(NumberOfPulsesToRecord);
-			PutProcessedDataOnConsole();
-			SaveRawData();
-		}else{
-			char tmp[100];
-			sprintf(tmp,"You cannot have more then %d pulses in a reading\n",MaxPulsesInAReading);
-			MainLog->Items->Add(tmp);
-		}
-	}else
+	if (!GenericFlowmeter->FlowmeterReady) {
 		MainLog->Items->Add("You can't do this operation because the flowmeter is not setup yet");
+		return;
+	}
+	if (NumberOfPulsesToRecord > MaxPulsesInAReading){
+		char tmp[100];
+		sprintf(tmp,"You can't have more then %d pulses in a reading",MaxPulsesInAReading);
+		MainLog->Items->Add(tmp);
+		return;
+	}
+	if(RecordingInProgress){
+		MainLog->Items->Add("Recording already in progress");
+		return;
+	}
 	if(ReadingsStoredInArrays>=MaxReadingsBeforeOutputtingAnalysisFile)// this is included to handle the overflow caused by the user taking too many readings before telling the system to output an analyis file
-		SaveProcessedData(); // I don't think this is right, check later
+		SaveProcessedData();
+	StartReading();
+	//idea: add code here to stop the recording if the button is pressed again.
+	//GetData(NumberOfPulsesToRecord);
+	//PutProcessedDataOnConsole();
+	//SaveRawData();
 }
-void ZeroRawDataArrays(){
+void TForm1::ZeroRawDataArrays(){
 	for (int i = 0; i < RawDataArraySize; i++) {
 		TimeOfReading[i]=0;
 		FlowReading[i]=0;
 	}
 }
-void ZeroProcessedDataArrays(){
+void TForm1::ZeroProcessedDataArrays(){
 	for(int i = 0; i < MaxReadingsBeforeOutputtingAnalysisFile; i++) {
 		AveragePeakFlow[i] = 0;
 		AverageCycleTime[i] = 0;
@@ -117,31 +103,43 @@ void ZeroProcessedDataArrays(){
 		}
 	}
 }
-void GetData(int pulses_to_record){
+void TForm1::StartReading(){
+	ZeroRawDataArrays();
+	NumberOfPulsesToRecord=StrToInt(PulsesToRecord->Text);
+	QueryPerformanceCounter(&TicksAtStartOfReading);     // record the time that the reading started
+	RecordingInProgress = true;
+}
+void TForm1::GetDataPoint(){
 	int RecordedPulses = 0;
 	//while(-2==GenericFlowmeter->LastMassFlow){
 	//	Sleep(1);// the flowmeter returns -2 when it does not have data, this code waits until the flowmeter has data, idealy this code should never need to run as the flowmeter should have data by this point in the program. If the flowmeter is connected backwards it will give negetive flow values but this will not cause  problems unless it consistantly returns a value of -2
 	//}
-	LARGE_INTEGER frequency;        // ticks per second
-	LARGE_INTEGER start_time, current_time;           // ticks
-	QueryPerformanceFrequency(&frequency);  // get ticks per second
-	QueryPerformanceCounter(&start_time);     // record the time that the GetData function started
-	//int pulse_starts = 0;
-	for(int i=0;i<RawDataArraySize;i++){     // this stops the test when all the pulses needed have bee recorded or the array runs out of space
-		QueryPerformanceCounter(&current_time);
-		TimeOfReading[i] = double(current_time.QuadPart - start_time.QuadPart)/double(frequency.QuadPart); // this calculates the time in seconds from the initiation of this function
-		FlowReading[i] = GenericFlowmeter->LastMassFlow;
-		RecordedPulses = ProcessData();
-		if (RecordedPulses >= pulses_to_record)
-			break;
-		Sleep(Settings->DataGatheringCycleTime);
+	LARGE_INTEGER CurrentTicks;           // ticks
+	QueryPerformanceCounter(&CurrentTicks);
+	if(ReadingsInRawDataArray>=RawDataArraySize){
+		MainLog->Items->Add("The reading was aborted early because the raw data array was full. Contact a programmer.");
+		ProcessData();
+		FinishReading();
+		return;
 	}
-	assert(RecordedPulses == pulses_to_record);
-	PulsesInReading[ReadingsStoredInArrays] = RecordedPulses;
-	FindPulseAverages(ReadingsStoredInArrays);
-	ReadingsStoredInArrays++;    // this records that a reading has happened
+	TimeOfReading[ReadingsInRawDataArray] = double(CurrentTicks.QuadPart - TicksAtStartOfReading.QuadPart)/double(Frequency.QuadPart); // this calculates the time in seconds from the initiation of this function
+	FlowReading[ReadingsInRawDataArray] = GenericFlowmeter->LastMassFlow;
+	RecordedPulses = ProcessData();
+	if (RecordedPulses >= NumberOfPulsesToRecord){
+		assert(RecordedPulses == NumberOfPulsesToRecord);
+		PulsesInReading[ReadingsStoredInArrays] = RecordedPulses;
+		ReadingsStoredInArrays++;    // this records that a reading has happened
+		FinishReading();
+	}
+	char tmp[100];
+	itoa(RecordedPulses,tmp,10);
+	PulsesRecorded->Text=tmp;
+	return;
 }
-int ProcessData(){ // I need to find the pulse duration, the cycle time and the volume in this function
+void TForm1::FinishReading(){
+	RecordingInProgress = false;
+}
+int  TForm1::ProcessData(){ // I need to find the pulse duration, the cycle time and the volume in this function
 	double IntegratedVolume = 0; // this variable records the volume that passed through the OCD in the part of the pulse processed so far
 	float CurrentBiggestFlow = -1000;
 	int MostRecentUp = -1000;
@@ -180,7 +178,7 @@ int ProcessData(){ // I need to find the pulse duration, the cycle time and the 
 	PulsesInReading [ReadingsStoredInArrays] = RecordedPulses;
 	return(RecordedPulses);
 }
-void FindPulseAverages(int reading_of_intrest){// this take the avarage of the quantitiys derived though analysis over all the pulses in the reading passed to it
+void TForm1::FindPulseAverages(int reading_of_intrest){// this take the avarage of the quantitiys derived though analysis over all the pulses in the reading passed to it
 	AveragePeakFlow[reading_of_intrest]=0;
 	AverageCycleTime[reading_of_intrest]=0;
 	AveragePulseOnTime[reading_of_intrest]=0;
@@ -198,7 +196,7 @@ void FindPulseAverages(int reading_of_intrest){// this take the avarage of the q
 		AveragePulseVolume[reading_of_intrest]=AveragePulseVolume[reading_of_intrest]/PulsesInReading[reading_of_intrest];
 	}
 }
-void PutProcessedDataOnConsole(){
+void TForm1::PutProcessedDataOnConsole(){
 	/*
 	if (0 != PulsesInReading[ReadingsStoredInArrays-1]){
 		printf("The pulse peak flow, duration, cycle time and volume are:\n");
@@ -215,7 +213,7 @@ void PutProcessedDataOnConsole(){
 	}
 	*/
 }
-void SaveRawData(){ // this function needs to know the current reading number and it needs to know the most recently written raw Settings file number
+void TForm1::SaveRawData(){ // this function needs to know the current reading number and it needs to know the most recently written raw Settings file number
 	char FileName[50];
 	sprintf(FileName,"raw data %d.txt",Settings->LastRawDataFileNumber+1);
 	Settings->WriteFile(); // this record the change in the most_recently_used_raw_data_file_number
@@ -247,7 +245,7 @@ void SaveRawData(){ // this function needs to know the current reading number an
 	}
 	fclose (pFile);
 }
-void SaveProcessedData(){
+void TForm1::SaveProcessedData(){
 	FILE * pFile;
 	char FileName[50];
 	sprintf(FileName,"processed data %d.txt",(Settings->LastProcessedDataFileNumber+1)); // the idea is that this causes the analysed data file numbers to be numbered sequentialy

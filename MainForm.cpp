@@ -44,10 +44,9 @@ void __fastcall TForm1::FastTimerTimer(TObject *Sender)
 		PressureMonitor->Text = tmpString;
 		if(GroupIsRecording){
 			GetDataPoint();
-			ProcessDataPoint();
+			ProcessRecentData();
 		}
 	}
-
 }
 void __fastcall TForm1::OutputDataClick(TObject *Sender)
 {
@@ -99,7 +98,8 @@ void TForm1::StartGroup(){
 	ZeroRawDataArrays();
 	TargetPulsesInGroup=StrToInt(PulsesToRecord->Text);
 	QueryPerformanceCounter(&TicksAtStartOfReading);     // record the time that the reading started
-	RecordedPulsesInGroup = 0;
+	PulsesInGroup[GroupsStoredInArrays] = 0;
+	MostRecentUp = 0;
 	GroupIsRecording = true;
 	Log->Items->Add("Pulse recording started");
 }
@@ -113,24 +113,57 @@ void TForm1::GetDataPoint(){
 	}
 	TimeOfReading[ReadingsInRawDataArray] = double(CurrentTicks.QuadPart - TicksAtStartOfReading.QuadPart)/double(Frequency.QuadPart); // this calculates the time in seconds from the initiation of this function
 	FlowReading[ReadingsInRawDataArray] = GenericFlowmeter->LastMassFlow;
-  ReadingsInRawDataArray++;
+	ReadingsInRawDataArray++;
 	char tmp[100];
-	itoa(RecordedPulsesInGroup,tmp,10);
+	itoa(PulsesInGroup[GroupsStoredInArrays],tmp,10);
 	PulsesRecorded->Text=tmp;
 
-	if (RecordedPulsesInGroup >= TargetPulsesInGroup){
-		assert(RecordedPulsesInGroup == TargetPulsesInGroup);
-		PulsesInGroup[GroupsStoredInArrays] = RecordedPulsesInGroup;
-		GroupsStoredInArrays++;    // this records that a reading has happened
+	if (PulsesInGroup[GroupsStoredInArrays] >= TargetPulsesInGroup){
+		assert(PulsesInGroup[GroupsStoredInArrays] == TargetPulsesInGroup);
 		FinishGroup();
 	}
 	return;
 }
-void  TForm1::ProcessDataPoint(){ // I need to find the pulse duration, the cycle time and the volume in this function
-	if (FlowReading[ReadingsInRawDataArray] >= Settings->TriggerFlow && FlowReading[ReadingsInRawDataArray-1] < Settings->TriggerFlow){
-		PulseHistory->Items->Add("Pulse Started");
+void  TForm1::ProcessRecentData(){ // I need to find the pulse duration, the cycle time and the volume in this function
+	//execute on pulse start
+	if (ReadingsInRawDataArray>1&&FlowReading[ReadingsInRawDataArray-1] >= Settings->TriggerFlow && FlowReading[ReadingsInRawDataArray-2] < Settings->TriggerFlow){
+		//finish processing for previous pulse
+		if(MostRecentUp>0.1){// this stops the first up triggering the compleation of a pulse
+			PulseVolume[PulsesInGroup[GroupsStoredInArrays]] [GroupsStoredInArrays]=IntegratedVolume;
+			PulseCycleTime [PulsesInGroup[GroupsStoredInArrays]] [GroupsStoredInArrays] =  TimeOfReading[ReadingsInRawDataArray] - TimeOfReading[MostRecentUp];
+			PulsePeakFlow [PulsesInGroup[GroupsStoredInArrays]] [GroupsStoredInArrays] = CurrentBiggestFlow;
+			PulsesInGroup[GroupsStoredInArrays]++;
+			UpdateAverages();
+			PutProcessedDataOnScreen();
+		}
+		//processing for new pulse
+		PulseHistory->Items->Add("Pulse Started");// remove me later
+		IntegratedVolume = 0;
+		CurrentBiggestFlow = -1000;
+		MostRecentUp = ReadingsInRawDataArray;// this is setting the position in the array of the most recent pulse start equal to the current position in the array
 	}
-	/*
+	//execute on pulse end
+	if (ReadingsInRawDataArray>1&&FlowReading[ReadingsInRawDataArray-2] >= Settings->TriggerFlow && FlowReading[ReadingsInRawDataArray-1] < Settings->TriggerFlow){
+		PulseHistory->Items->Add("Pulse Ended");// remove me later
+		PulseOnTime [PulsesInGroup[GroupsStoredInArrays]] [GroupsStoredInArrays] = TimeOfReading[ReadingsInRawDataArray] - TimeOfReading[MostRecentUp];
+		PulsePeakFlow [PulsesInGroup[GroupsStoredInArrays]] [GroupsStoredInArrays] = CurrentBiggestFlow;
+	}
+	if (FlowReading[ReadingsInRawDataArray-1] > CurrentBiggestFlow){
+		CurrentBiggestFlow = FlowReading[ReadingsInRawDataArray-1];
+	}
+	// The below logic does the integration.
+	// The "1000/60" converts from litres per minute to millilitres per second
+	// The "(TimeOfReading[i+1]-TimeOfReading[i-1])/2" gives the best estimate that I know of for the length of time associated with a reading
+	// For easy understanding I want to write the algebraically correct expression:
+	// IntegratedVolume = IntegratedVolume + ((TimeOfReading[i+1]-TimeOfReading[i-1])/2)*FlowReading[j]*1000/60;
+	// To make the above line actually function in code and provide and accurate answer I rearrange it to be the algebraically equivalent:
+	// IntegratedVolume = IntegratedVolume + (TimeOfReading[i+1]-TimeOfReading[i-1])*FlowReading[j]*1000/60/2;
+	// and then:
+	IntegratedVolume = IntegratedVolume + (TimeOfReading[ReadingsInRawDataArray-1]-TimeOfReading[ReadingsInRawDataArray-1-2])*FlowReading[ReadingsInRawDataArray-1-1]*(double)25/(double)3;
+
+	// idea: run a running total of pulse volume
+//-----------------------------------------------------------
+/*
 	double IntegratedVolume = 0; // this variable records the volume that passed through the OCD in the part of the pulse processed so far
 	float CurrentBiggestFlow = -1000;
 	int MostRecentUp = -1000;
@@ -168,8 +201,6 @@ void  TForm1::ProcessDataPoint(){ // I need to find the pulse duration, the cycl
 	PulsesInReading [ReadingsStoredInArrays] = RecordedPulses;
 	return(RecordedPulses);
 	*/
-	UpdateAverages();
-	PutProcessedDataOnScreen();
 }
 void TForm1::UpdateAverages(){// averages all the pulses in the current reading
 	AveragePulseVolume[GroupsStoredInArrays]=0;
@@ -202,6 +233,7 @@ void TForm1::PutProcessedDataOnScreen(){
 	AvgCycleTime->Text=tmp;
 }
 void TForm1::FinishGroup(){
+	GroupsStoredInArrays++;
 	GroupIsRecording = false;
 	Log->Items->Add("Pulse recording ended");
 	SaveRawData();

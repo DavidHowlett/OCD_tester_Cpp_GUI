@@ -48,7 +48,7 @@ private:	// User declarations
 	void ZeroProcessedDataArrays();
 	void StartGroup();
 	void GetDataPoint();      // this records data from the flowmeter for a user specified number of seconds, calling it will create one reading
-	void ProcessDataPoint(); 	// this includes finding all the pulse data other then avarages
+	void ProcessRecentData(); 	// this includes finding all the pulse data other then avarages
 	void UpdateAverages();
 	void PutProcessedDataOnScreen();
 	void FinishGroup();
@@ -60,7 +60,6 @@ private:
 	LARGE_INTEGER TicksAtStartOfReading;           // ticks
 	bool GroupIsRecording;
 	int  TargetPulsesInGroup;
-	int  RecordedPulsesInGroup; // this is the number of sucsessfully recorded pulses in the current group
 	static const int MaxPulsesInAGroup = 100;
 	static const int MaxGroupsBeforeOutputtingAnalysisFile = 100;
 	static const int RawDataArraySize = 100000; // it may be a good idea to make the raw data a struct and then make a linked list of structs
@@ -79,6 +78,13 @@ private:
 	float			AverageCycleTime 			[MaxGroupsBeforeOutputtingAnalysisFile];
 	float			AveragePulseOnTime 		[MaxGroupsBeforeOutputtingAnalysisFile];
 	float			AveragePulseVolume 		[MaxGroupsBeforeOutputtingAnalysisFile];
+	// variables exclusively for data processing function
+	double IntegratedVolume;
+	float CurrentBiggestFlow;
+	int MostRecentUp;
+
+
+
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);
 };

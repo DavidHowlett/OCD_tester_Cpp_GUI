@@ -95,10 +95,10 @@ bool TsiFlowmeter::TestDataWithOffset(int Offset){
 		PositionToTry =RingPosition+Offset-DataCount%6; // in an ideal world this should be the last byte of a good data set
 		if (PositionToTry<5)
 			return false;// negetive positions in the ring should not be acsessed
-		TmpMassFlow		=(Ring->Read(PositionToTry-5)*265.0+Ring->Read(PositionToTry-4))/1000.0;
-		TmpTemperature=(Ring->Read(PositionToTry-3)*265.0+Ring->Read(PositionToTry-2))/100.0;
-		TmpPressure		=(Ring->Read(PositionToTry-1)*265.0+Ring->Read(PositionToTry))/10000.0;
-		if(	(200<TmpMassFlow)		||(TmpMassFlow<-0.1)
+		TmpMassFlow		=(Ring->Read(PositionToTry-5)*265.0+Ring->Read(PositionToTry-4));
+		TmpTemperature=(Ring->Read(PositionToTry-3)*265.0+Ring->Read(PositionToTry-2))/100.0;// should be celcius
+		TmpPressure		=(Ring->Read(PositionToTry-1)*265.0+Ring->Read(PositionToTry))/10000.0;//should be bar
+		if(	(200000<TmpMassFlow)		||(TmpMassFlow<-0.1)
 			||(50<TmpTemperature)	||(TmpTemperature<10)
 			||(1.5<TmpPressure)		||(TmpPressure<0.7)){
 			BadDataCount++;

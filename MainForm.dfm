@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'OCD test program'
-  ClientHeight = 493
+  ClientHeight = 443
   ClientWidth = 709
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -13,12 +13,12 @@ object Form1: TForm1
   OldCreateOrder = False
   DesignSize = (
     709
-    493)
+    443)
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel
     Left = 8
-    Top = 227
+    Top = 187
     Width = 87
     Height = 13
     Caption = 'Running averages'
@@ -32,7 +32,7 @@ object Form1: TForm1
   end
   object Label1: TLabel
     Left = 250
-    Top = 150
+    Top = 235
     Width = 45
     Height = 13
     Caption = 'Event log'
@@ -60,28 +60,28 @@ object Form1: TForm1
   end
   object Label7: TLabel
     Left = 8
-    Top = 254
+    Top = 214
     Width = 55
     Height = 13
     Caption = 'Volume (ml)'
   end
   object Label8: TLabel
     Left = 8
-    Top = 273
+    Top = 233
     Width = 37
     Height = 13
     Caption = 'On time'
   end
   object Label9: TLabel
     Left = 8
-    Top = 350
+    Top = 293
     Width = 49
     Height = 13
     Caption = 'Cycle time'
   end
   object Label10: TLabel
     Left = 8
-    Top = 306
+    Top = 266
     Width = 39
     Height = 13
     Caption = 'Off time'
@@ -111,7 +111,7 @@ object Form1: TForm1
     OnClick = StartClick
   end
   object MassFlowMonitor: TEdit
-    Left = 100
+    Left = 118
     Top = 8
     Width = 83
     Height = 21
@@ -121,13 +121,13 @@ object Form1: TForm1
   object TemperatureMonitor: TEdit
     Left = 118
     Top = 65
-    Width = 84
+    Width = 83
     Height = 21
     TabOrder = 2
     Text = 'TemperatureMonitor'
   end
   object PressureMonitor: TEdit
-    Left = 100
+    Left = 118
     Top = 38
     Width = 83
     Height = 21
@@ -145,73 +145,67 @@ object Form1: TForm1
     OnClick = OutputDataClick
   end
   object PulseHistory: TListBox
-    Left = 250
-    Top = 38
+    Left = 253
+    Top = 43
     Width = 419
-    Height = 101
+    Height = 182
     Anchors = [akLeft, akTop, akRight]
     ItemHeight = 13
-    Items.Strings = (
-      'volume, on time, off time, cycle time'
-      'volume, on time, off time, cycle time'
-      'volume, on time, off time, cycle time'
-      'volume, on time, off time, cycle time'
-      '')
     TabOrder = 5
   end
   object AvgVolume: TEdit
-    Left = 100
-    Top = 246
-    Width = 66
+    Left = 118
+    Top = 206
+    Width = 83
     Height = 21
     TabOrder = 6
     Text = 'AvgVolume'
   end
   object AvgOnTime: TEdit
-    Left = 100
-    Top = 273
-    Width = 66
+    Left = 118
+    Top = 236
+    Width = 83
     Height = 21
     TabOrder = 7
     Text = 'AvgOnTime'
   end
   object AvgOffTime: TEdit
-    Left = 100
-    Top = 303
-    Width = 66
+    Left = 118
+    Top = 263
+    Width = 83
     Height = 21
     TabOrder = 8
     Text = 'AvgOffTime'
   end
   object AvgCycleTime: TEdit
-    Left = 101
-    Top = 347
-    Width = 65
+    Left = 118
+    Top = 290
+    Width = 83
     Height = 21
     TabOrder = 9
     Text = 'AvgCycleTime'
   end
   object Log: TListBox
     Left = 253
-    Top = 169
+    Top = 254
     Width = 416
-    Height = 77
+    Height = 161
     Anchors = [akLeft, akTop, akRight]
     ItemHeight = 13
     TabOrder = 10
   end
   object PulsesToRecord: TEdit
-    Left = 112
+    Left = 118
     Top = 96
-    Width = 97
+    Width = 83
     Height = 21
     TabOrder = 11
     Text = 'PulsesToRecord'
   end
   object PulsesRecorded: TEdit
-    Left = 112
-    Top = 168
-    Width = 81
+    Left = 118
+    Top = 163
+    Width = 83
     Height = 21
     TabOrder = 12
     Text = 'PulsesRecorded'
@@ -219,7 +213,7 @@ object Form1: TForm1
   object FastTimer: TTimer
     Interval = 1
     OnTimer = FastTimerTimer
-    Left = 312
-    Top = 292
+    Left = 120
+    Top = 380
   end
 end

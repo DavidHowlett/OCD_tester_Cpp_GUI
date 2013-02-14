@@ -94,7 +94,7 @@ void TsiFlowmeter::CallMeRegularly(){
 bool TsiFlowmeter::TestDataWithOffset(int Offset){
 		PositionToTry =RingPosition+Offset-DataCount%6; // in an ideal world this should be the last byte of a good data set
 		if (PositionToTry<5)
-			return false;// negetive positions in the ring should ne be acsessed
+			return false;// negetive positions in the ring should not be acsessed
 		TmpMassFlow		=(Ring->Read(PositionToTry-5)*265.0+Ring->Read(PositionToTry-4))/1000.0;
 		TmpTemperature=(Ring->Read(PositionToTry-3)*265.0+Ring->Read(PositionToTry-2))/100.0;
 		TmpPressure		=(Ring->Read(PositionToTry-1)*265.0+Ring->Read(PositionToTry))/10000.0;
@@ -106,6 +106,7 @@ bool TsiFlowmeter::TestDataWithOffset(int Offset){
 		}else{ // I only want to update the data visible to the rest of the program if it is good.
 			if (PreviousGoodPosition!=PositionToTry){
 				ThereIsNewData = true;
+				PreviousGoodPosition = PositionToTry;
 			}
 			return true;
 		}
@@ -117,7 +118,7 @@ void TsiFlowmeter::AskForData(){
 	Sleep(10); // experimentaly it was found that sleeping for 7 or less was unreliable.
 }
 bool TsiFlowmeter::IsThereNewData(){
-	// the over all intention is that the other classes cna detect if there is
+	// the over all intention is that the other classes can detect if there is
 	// new data avalible
 	bool tmp=ThereIsNewData;
 	ThereIsNewData = false;

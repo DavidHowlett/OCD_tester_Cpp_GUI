@@ -94,6 +94,7 @@
 				<BuildOrder>0</BuildOrder>
 			</CppCompile>
 			<ResFiles Include="OCD test program.res">
+				<ModuleName>OCD test program.res</ModuleName>
 				<BuildOrder>1</BuildOrder>
 			</ResFiles>
 			<CppCompile Include="RingBuffer.cpp">

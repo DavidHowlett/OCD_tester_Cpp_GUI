@@ -61,38 +61,6 @@ Cardinal AlicatFlowmeter::DataAge()                              //Age of data i
 {
 	return (GetTickCount()-TicksLastRead);
 }
-
-//******************************************************************************
-void AlicatFlowmeter::SetPressureMonitor      (TEdit* Monitor)   //Optionally use an Edit Box to monitor the output
-//******************************************************************************
-{
-	FPressureMonitor=Monitor;
-}
-
-//******************************************************************************
-void AlicatFlowmeter::SetTemperatureMonitor   (TEdit* Monitor)   //Optionally use an Edit Box to monitor the output
-//******************************************************************************
-{
-	FTemperatureMonitor=Monitor;
-}
-//******************************************************************************
-void AlicatFlowmeter::SetVolumetricFlowMonitor(TEdit* Monitor)   //Optionally use an Edit Box to monitor the output
-//******************************************************************************
-{
-	FVolumetricFlowMonitor=Monitor;
-}
-//******************************************************************************
-void AlicatFlowmeter::SetMassFlowMonitor      (TEdit* Monitor)   //Optionally use an Edit Box to monitor the output
-//******************************************************************************
-{
-	FMassFlowMonitor=Monitor;
-}
-//******************************************************************************
-void AlicatFlowmeter::SetGasTypeMonitor       (TEdit* Monitor)   //Optionally use an Edit Box to monitor the output
-//******************************************************************************
-{
-	FGasTypeMonitor=Monitor;
-}
 //******************************************************************************
 float AlicatFlowmeter::Pressure      () //Return the pressure reading
 //******************************************************************************
@@ -184,20 +152,6 @@ void AlicatFlowmeter::SetName()
 	{
 	}
 }
-
-//******************************************************************************
-void __fastcall AlicatFlowmeter::UpdateMonitors()  //Update the monitor fields, if any
-//Monitor fields, if set, are automatically updated 
-//******************************************************************************
-{
-	char tmp[20];
-	if (FPressureMonitor      !=NULL) {sprintf(tmp,"%f",Pressure()      );FPressureMonitor      ->Text=tmp      ;};
-	if (FTemperatureMonitor   !=NULL) {sprintf(tmp,"%f",Temperature()   );FTemperatureMonitor   ->Text=tmp      ;};
-	if (FVolumetricFlowMonitor!=NULL) {sprintf(tmp,"%f",VolumetricFlow());FVolumetricFlowMonitor->Text=tmp      ;};
-	if (FMassFlowMonitor      !=NULL) {sprintf(tmp,"%f",MassFlow()      );FMassFlowMonitor      ->Text=tmp      ;};
-	if (FGasTypeMonitor       !=NULL) {                                  ;FGasTypeMonitor       ->Text=GasType();};
-}
-
 //******************************************************************************
 void __fastcall AlicatFlowmeter::Execute()
 //******************************************************************************

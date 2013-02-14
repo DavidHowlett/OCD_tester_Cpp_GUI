@@ -42,39 +42,43 @@ __published:	// IDE-managed Components
 	void __fastcall OutputDataClick(TObject *Sender);
 	void __fastcall StartClick(TObject *Sender);
 private:	// User declarations
-	void	ZeroRawDataArrays();
-	void	ZeroProcessedDataArrays();
-	void	StartReading();
-	void	GetDataPoint();      // this records data from the flowmeter for a user specified number of seconds, calling it will create one reading
-	void	FinishReading();
-	int		ProcessData();  // I don't like this function, remove later
-	void	FindPulseAverages(int reading_of_interest);
-	void	PutProcessedDataOnConsole();
-	void	SaveRawData();     // this saves the raw experemental data to a text file. the int passed to it indicates the file number that it should be saved to
-	void	SaveProcessedData();
+// I define the word "group" to mean a set of pulses and their assosiated data
+// I expect that 1 group will only contain data about 1 OCD unit on 1 setting
+	void ZeroRawDataArrays();
+	void ZeroProcessedDataArrays();
+	void StartGroup();
+	void GetDataPoint();      // this records data from the flowmeter for a user specified number of seconds, calling it will create one reading
+	void ProcessDataPoint(); 	// this includes finding all the pulse data other then avarages
+	void UpdateAverages();
+	void PutProcessedDataOnScreen();
+	void FinishGroup();
+
+	void SaveRawData();     // this saves the raw experemental data to a text file. the int passed to it indicates the file number that it should be saved to
+	void SaveProcessedData();
 private:
-	bool RecordingInProgress;
-	int NumberOfPulsesToRecord;
 	LARGE_INTEGER Frequency;        // ticks per second
 	LARGE_INTEGER TicksAtStartOfReading;           // ticks
-	static const int MaxPulsesInAReading = 100;
-	static const int MaxReadingsBeforeOutputtingAnalysisFile = 100;
-	static const int RawDataArraySize = 100000;
+	bool GroupIsRecording;
+	int  TargetPulsesInGroup;
+	int  RecordedPulsesInGroup; // this is the number of sucsessfully recorded pulses in the current group
+	static const int MaxPulsesInAGroup = 100;
+	static const int MaxGroupsBeforeOutputtingAnalysisFile = 100;
+	static const int RawDataArraySize = 100000; // it may be a good idea to make the raw data a struct and then make a linked list of structs
 	int 			ReadingsInRawDataArray;
-	int    		ReadingsStoredInArrays;      // I choose to define a reading to be a set of pulses that are grouped together and avaraged to give a result
+	int    		GroupsStoredInArrays;      // I choose to define a reading to be a set of pulses that are grouped together and avaraged to give a result
 	double 		TimeOfReading			  	[RawDataArraySize]; // this is the time in milliseconds
 	float 		FlowReading						[RawDataArraySize]; // the raw data arrays have been declared here to avoid putting the data on the stack
-	int				RawDataFileAssosiatedWithReading [MaxReadingsBeforeOutputtingAnalysisFile];
-	int 			PulsesInReading				[MaxReadingsBeforeOutputtingAnalysisFile];// each reading will be made up of many pulses (3 is expected)
-	bool  		TooManyPulsesInReading[MaxReadingsBeforeOutputtingAnalysisFile];// this notes if there was more data then was recorded
-	float			PulsePeakFlow 				[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
-	float			PulseCycleTime 				[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
-	float			PulseOnTime 					[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
-	float			PulseVolume 					[MaxPulsesInAReading] [MaxReadingsBeforeOutputtingAnalysisFile];
-	float			AveragePeakFlow 			[MaxReadingsBeforeOutputtingAnalysisFile];
-	float			AverageCycleTime 			[MaxReadingsBeforeOutputtingAnalysisFile];
-	float			AveragePulseOnTime 		[MaxReadingsBeforeOutputtingAnalysisFile];
-	float			AveragePulseVolume 		[MaxReadingsBeforeOutputtingAnalysisFile];
+	int				RawDataFileAssosiatedWithGroup [MaxGroupsBeforeOutputtingAnalysisFile];
+	int 			PulsesInGroup				[MaxGroupsBeforeOutputtingAnalysisFile];// each reading will be made up of many pulses (3 is expected)
+	bool  		TooManyPulsesInGroup[MaxGroupsBeforeOutputtingAnalysisFile];// this notes if there was more data then was recorded
+	float			PulsePeakFlow 				[MaxPulsesInAGroup] [MaxGroupsBeforeOutputtingAnalysisFile];
+	float			PulseCycleTime 				[MaxPulsesInAGroup] [MaxGroupsBeforeOutputtingAnalysisFile];
+	float			PulseOnTime 					[MaxPulsesInAGroup] [MaxGroupsBeforeOutputtingAnalysisFile];
+	float			PulseVolume 					[MaxPulsesInAGroup] [MaxGroupsBeforeOutputtingAnalysisFile];
+	float			AveragePeakFlow 			[MaxGroupsBeforeOutputtingAnalysisFile];
+	float			AverageCycleTime 			[MaxGroupsBeforeOutputtingAnalysisFile];
+	float			AveragePulseOnTime 		[MaxGroupsBeforeOutputtingAnalysisFile];
+	float			AveragePulseVolume 		[MaxGroupsBeforeOutputtingAnalysisFile];
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);
 };

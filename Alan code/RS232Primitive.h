@@ -64,29 +64,6 @@ public:
 		char Parity   ,        /* (N)one, (O)dd, (E)ven, (M)ark, (S)pace, first char, any case, or 0-4=None,Odd,Even,Mark,Space    */
 		BYTE ByteSize ,        /* Number of bits/byte, 4-8        */
 		float StopBits );      /* 1, 1.5, 2                       */
-//		DWORD fBinary: 1;     /* Binary Mode (skip EOF check)    */
-//		DWORD fParity: 1;     /* Enable parity checking          */
-//		DWORD fOutxCtsFlow:1; /* CTS handshaking on output       */
-//		DWORD fOutxDsrFlow:1; /* DSR handshaking on output       */
-//		DWORD fDtrControl:2;  /* DTR Flow control                */
-//		DWORD fDsrSensitivity:1; /* DSR Sensitivity              */
-//		DWORD fTXContinueOnXoff: 1; /* Continue TX when Xoff sent */
-//		DWORD fOutX: 1;       /* Enable output X-ON/X-OFF        */
-//		DWORD fInX: 1;        /* Enable input X-ON/X-OFF         */
-//		DWORD fErrorChar: 1;  /* Enable Err Replacement          */
-//		DWORD fNull: 1;       /* Enable Null stripping           */
-//		DWORD fRtsControl:2;  /* Rts Flow control                */
-//		DWORD fAbortOnError:1; /* Abort all reads and writes on Error */
-//		DWORD fDummy2:17;     /* Reserved                        */
-//		WORD wReserved;       /* Not currently used              */
-//		WORD XonLim;          /* Transmit X-ON threshold         */
-//		WORD XoffLim;         /* Transmit X-OFF threshold        */
-//		char XonChar;         /* Tx and Rx X-ON character        */
-//		char XoffChar;        /* Tx and Rx X-OFF character       */
-//		char ErrorChar;       /* Error replacement char          */
-//		char EofChar;         /* End of Input character          */
-//		char EvtChar;         /* Received Event character        */
-//		WORD wReserved1;      /* Fill for now.                   */
 	int    Read();                   //Read the data in
 	String ReadNBytes(int n);        //Return n bytes, or as near as.
 	String ReadUpTo(String Str);      //Read all bytes up to "str", usually a <CR> or similar

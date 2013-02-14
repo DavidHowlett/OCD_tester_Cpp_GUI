@@ -25,12 +25,6 @@ public:
 //	 __fastcall ~FlowMeter(void);                          //Destructor
 	void __fastcall Execute();                               //Thread execution loop. Critical!!
 	Cardinal DataAge();                                      //Age of data in clock ticks
-	//Setting the monitor controls to view the data on-screen:
-	void       SetPressureMonitor      (TEdit* Monitor    ); //Optionally use an Edit Box to monitor the output
-	void       SetTemperatureMonitor   (TEdit* Monitor    ); //Optionally use an Edit Box to monitor the output
-	void       SetVolumetricFlowMonitor(TEdit* Monitor    ); //Optionally use an Edit Box to monitor the output
-	void       SetMassFlowMonitor      (TEdit* Monitor    ); //Optionally use an Edit Box to monitor the output
-	void       SetGasTypeMonitor       (TEdit* Monitor    ); //Optionally use an Edit Box to monitor the output
 private:
 	//Administration
 	boolean    TooOld();                                     //Is the data too old to show? eg over 0.05 seconds old
@@ -48,7 +42,6 @@ private:
 	float      FVolumetricFlow ;                             //The current volumetric flow
 	float      FMassFlow       ;                             //The current mass flow
 	String     FGasType        ;                             //The current gas type (eg "Air"), String
-	void __fastcall UpdateMonitors();                        //Update the monitor fields, if any
 	int        LogCounter;                                   //This is used to update the log[LogCounter] data
 	float      PressureLog      [MeanReadingsCount];      //Record of the pressures over time
 	float      TemperatureLog   [MeanReadingsCount];      //Record of the temperatures over time

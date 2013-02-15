@@ -30,6 +30,12 @@ __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner)
 	GroupIsRecording = false;
 	QueryPerformanceFrequency(&Frequency);  // get ticks per second
 	ReadingsInRawDataArray = 0;
+	PulsesRecorded->Color=clLime;
+	PulsesRecorded->Text="0";
+	AvgCycleTime	->Text="0";
+	AvgOnTime			->Text="0";
+	AvgOffTime		->Text="0";
+	AvgVolume			->Text="0";
 }
 void __fastcall TForm1::FastTimerTimer(TObject *Sender)
 {
@@ -69,6 +75,7 @@ void __fastcall TForm1::StartClick(TObject *Sender)
 		FinishGroup();
 		return;
 	}
+	Start->Caption="Stop";
 	StartGroup();
 	//idea: add code here to stop the recording if the button is pressed again.
 }
@@ -117,7 +124,10 @@ void TForm1::GetDataPoint(){
 	char tmp[100];
 	itoa(PulsesInGroup[GroupsStoredInArrays],tmp,10);
 	PulsesRecorded->Text=tmp;
-
+	if (PulsesInGroup[GroupsStoredInArrays]==TargetPulsesInGroup)
+		PulsesRecorded->Color=clLime;
+	else
+		PulsesRecorded->Color=clRed;
 	if (PulsesInGroup[GroupsStoredInArrays] >= TargetPulsesInGroup){
 		assert(PulsesInGroup[GroupsStoredInArrays] == TargetPulsesInGroup);
 		FinishGroup();
@@ -129,7 +139,6 @@ void  TForm1::ProcessRecentData(){ // I need to find the pulse duration, the cyc
 	if (ReadingsInRawDataArray>=2&&FlowReading[ReadingsInRawDataArray-1] >= Settings->TriggerFlow && FlowReading[ReadingsInRawDataArray-2] < Settings->TriggerFlow){
 		//finish processing for previous pulse
 		if(MostRecentUp>0.1){// this stops the first up triggering the compleation of a pulse
-
 			PulsePeakFlow [PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = CurrentBiggestFlow;
 			PulseCycleTime[PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = TimeOfReading[ReadingsInRawDataArray-1] - TimeOfReading[MostRecentUp	];
 			PulseOnTime 	[PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = TimeOfReading[MostRecentDown					]	- TimeOfReading[MostRecentUp	];
@@ -138,7 +147,6 @@ void  TForm1::ProcessRecentData(){ // I need to find the pulse duration, the cyc
 			PulsesInGroup	[GroupsStoredInArrays]++; // this being before the updateing of the averages is important and a pain in the rear to change
 			UpdateAverages();
 			PutProcessedDataOnScreen();
-
 		}
 		//processing for new pulse
 		IntegratedVolume = 0;
@@ -197,6 +205,7 @@ void TForm1::PutProcessedDataOnScreen(){
 void TForm1::FinishGroup(){
 	GroupsStoredInArrays++;
 	GroupIsRecording = false;
+  Start->Caption="Start";
 	Log->Items->Add("Pulse recording ended");
 	SaveRawData();
 	if(GroupsStoredInArrays>=MaxGroupsBeforeOutputtingAnalysisFile)// this is included to handle the overflow caused by the user taking too many readings before telling the system to output an analyis file
@@ -282,4 +291,16 @@ void TForm1::SaveProcessedData(){
 	fclose (pFile);
 	ZeroProcessedDataArrays();
 }
+
+void __fastcall TForm1::ClearPulseLogClick(TObject *Sender)
+{
+	PulseHistory->Clear();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::ClearEventLogClick(TObject *Sender)
+{
+	Log->Clear();
+}
+//---------------------------------------------------------------------------
 

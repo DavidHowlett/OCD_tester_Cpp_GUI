@@ -143,9 +143,9 @@ object Form1: TForm1
     OnClick = OutputDataClick
   end
   object PulseHistory: TListBox
-    Left = 253
+    Left = 250
     Top = 43
-    Width = 419
+    Width = 431
     Height = 182
     Anchors = [akLeft, akTop, akRight]
     ItemHeight = 13
@@ -185,9 +185,9 @@ object Form1: TForm1
   end
   object Log: TListBox
     Left = 253
-    Top = 254
-    Width = 416
-    Height = 161
+    Top = 262
+    Width = 428
+    Height = 155
     Anchors = [akLeft, akTop, akRight]
     ItemHeight = 13
     TabOrder = 10
@@ -207,6 +207,24 @@ object Form1: TForm1
     Height = 21
     TabOrder = 12
     Text = 'PulsesRecorded'
+  end
+  object ClearPulseLog: TButton
+    Left = 344
+    Top = 8
+    Width = 75
+    Height = 25
+    Caption = 'Clear'
+    TabOrder = 13
+    OnClick = ClearPulseLogClick
+  end
+  object ClearEventLog: TButton
+    Left = 344
+    Top = 231
+    Width = 75
+    Height = 25
+    Caption = 'Clear'
+    TabOrder = 14
+    OnClick = ClearEventLogClick
   end
   object FastTimer: TTimer
     Interval = 1

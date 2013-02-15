@@ -38,9 +38,13 @@ __published:	// IDE-managed Components
 	TEdit *PulsesToRecord;
 	TLabel *Label12;
 	TEdit *PulsesRecorded;
+	TButton *ClearPulseLog;
+	TButton *ClearEventLog;
 	void __fastcall FastTimerTimer(TObject *Sender);
 	void __fastcall OutputDataClick(TObject *Sender);
 	void __fastcall StartClick(TObject *Sender);
+	void __fastcall ClearPulseLogClick(TObject *Sender);
+	void __fastcall ClearEventLogClick(TObject *Sender);
 private:	// User declarations
 // I define the word "group" to mean a set of pulses and their assosiated data
 // I expect that 1 group will only contain data about 1 OCD unit on 1 setting

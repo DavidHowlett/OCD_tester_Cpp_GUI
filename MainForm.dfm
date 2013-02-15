@@ -18,7 +18,7 @@ object Form1: TForm1
   TextHeight = 13
   object Label2: TLabel
     Left = 8
-    Top = 187
+    Top = 203
     Width = 87
     Height = 13
     Caption = 'Running averages'
@@ -60,28 +60,28 @@ object Form1: TForm1
   end
   object Label7: TLabel
     Left = 8
-    Top = 214
+    Top = 318
     Width = 55
     Height = 13
     Caption = 'Volume (ml)'
   end
   object Label8: TLabel
     Left = 8
-    Top = 233
+    Top = 249
     Width = 37
     Height = 13
     Caption = 'On time'
   end
   object Label9: TLabel
     Left = 8
-    Top = 293
+    Top = 222
     Width = 49
     Height = 13
     Caption = 'Cycle time'
   end
   object Label10: TLabel
     Left = 8
-    Top = 266
+    Top = 282
     Width = 39
     Height = 13
     Caption = 'Off time'
@@ -105,7 +105,6 @@ object Form1: TForm1
     Top = 123
     Width = 105
     Height = 34
-    Anchors = [akTop, akRight]
     Caption = 'Start'
     TabOrder = 0
     OnClick = StartClick
@@ -139,7 +138,6 @@ object Form1: TForm1
     Top = 123
     Width = 105
     Height = 34
-    Anchors = [akTop, akRight]
     Caption = 'Output data to file'
     TabOrder = 4
     OnClick = OutputDataClick
@@ -155,7 +153,7 @@ object Form1: TForm1
   end
   object AvgVolume: TEdit
     Left = 118
-    Top = 206
+    Top = 310
     Width = 83
     Height = 21
     TabOrder = 6
@@ -163,7 +161,7 @@ object Form1: TForm1
   end
   object AvgOnTime: TEdit
     Left = 118
-    Top = 236
+    Top = 252
     Width = 83
     Height = 21
     TabOrder = 7
@@ -171,7 +169,7 @@ object Form1: TForm1
   end
   object AvgOffTime: TEdit
     Left = 118
-    Top = 263
+    Top = 279
     Width = 83
     Height = 21
     TabOrder = 8
@@ -179,7 +177,7 @@ object Form1: TForm1
   end
   object AvgCycleTime: TEdit
     Left = 118
-    Top = 290
+    Top = 219
     Width = 83
     Height = 21
     TabOrder = 9
@@ -213,7 +211,7 @@ object Form1: TForm1
   object FastTimer: TTimer
     Interval = 1
     OnTimer = FastTimerTimer
-    Left = 120
-    Top = 380
+    Left = 102
+    Top = 364
   end
 end

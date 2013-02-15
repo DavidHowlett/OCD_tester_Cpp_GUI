@@ -73,15 +73,18 @@ private:
 	float			PulsePeakFlow 				[MaxPulsesInAGroup] [MaxGroupsBeforeOutputtingAnalysisFile];
 	float			PulseCycleTime 				[MaxPulsesInAGroup] [MaxGroupsBeforeOutputtingAnalysisFile];
 	float			PulseOnTime 					[MaxPulsesInAGroup] [MaxGroupsBeforeOutputtingAnalysisFile];
+	float			PulseOffTime         	[MaxPulsesInAGroup] [MaxGroupsBeforeOutputtingAnalysisFile];
 	float			PulseVolume 					[MaxPulsesInAGroup] [MaxGroupsBeforeOutputtingAnalysisFile];
 	float			AveragePeakFlow 			[MaxGroupsBeforeOutputtingAnalysisFile];
 	float			AverageCycleTime 			[MaxGroupsBeforeOutputtingAnalysisFile];
 	float			AveragePulseOnTime 		[MaxGroupsBeforeOutputtingAnalysisFile];
+	float			AveragePulseOffTime   [MaxGroupsBeforeOutputtingAnalysisFile];
 	float			AveragePulseVolume 		[MaxGroupsBeforeOutputtingAnalysisFile];
 	// variables exclusively for data processing function
 	double IntegratedVolume;
 	float CurrentBiggestFlow;
 	int MostRecentUp;
+	int MostRecentDown;
 
 
 

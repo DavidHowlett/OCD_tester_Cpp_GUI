@@ -32,12 +32,12 @@ class TsiFlowmeter{
 		bool ThereIsNewData;
 
 		HANDLE TsiPortHandle;
-		static const int TmpBufferSize=200;
+		static const int TmpBufferSize=4000;
 		unsigned char TmpBuffer[TmpBufferSize];
 		unsigned long BytesRead;
 		RingBuffer * Ring;
-		static const int RingSize = 300;
-		int DiagnosticBuffer[300];
+		static const int RingSize = 1000;
+		int DiagnosticBuffer[RingSize];
 		COMMTIMEOUTS StdTimeouts;
 		COMMTIMEOUTS WaitForData;
 		float TmpMassFlow;

@@ -126,111 +126,72 @@ void TForm1::GetDataPoint(){
 }
 void  TForm1::ProcessRecentData(){ // I need to find the pulse duration, the cycle time and the volume in this function
 	//execute on pulse start
-	if (ReadingsInRawDataArray>1&&FlowReading[ReadingsInRawDataArray-1] >= Settings->TriggerFlow && FlowReading[ReadingsInRawDataArray-2] < Settings->TriggerFlow){
+	if (ReadingsInRawDataArray>=2&&FlowReading[ReadingsInRawDataArray-1] >= Settings->TriggerFlow && FlowReading[ReadingsInRawDataArray-2] < Settings->TriggerFlow){
 		//finish processing for previous pulse
 		if(MostRecentUp>0.1){// this stops the first up triggering the compleation of a pulse
-			PulseVolume[PulsesInGroup[GroupsStoredInArrays]] [GroupsStoredInArrays]=IntegratedVolume;
-			PulseCycleTime [PulsesInGroup[GroupsStoredInArrays]] [GroupsStoredInArrays] =  TimeOfReading[ReadingsInRawDataArray] - TimeOfReading[MostRecentUp];
-			PulsePeakFlow [PulsesInGroup[GroupsStoredInArrays]] [GroupsStoredInArrays] = CurrentBiggestFlow;
-			PulsesInGroup[GroupsStoredInArrays]++;
+
+			PulsePeakFlow [PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = CurrentBiggestFlow;
+			PulseCycleTime[PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = TimeOfReading[ReadingsInRawDataArray-1] - TimeOfReading[MostRecentUp	];
+			PulseOnTime 	[PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = TimeOfReading[MostRecentDown					]	- TimeOfReading[MostRecentUp	];
+			PulseOffTime  [PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = TimeOfReading[ReadingsInRawDataArray-1] - TimeOfReading[MostRecentDown];
+			PulseVolume		[PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = IntegratedVolume;
 			UpdateAverages();
 			PutProcessedDataOnScreen();
+			PulsesInGroup[GroupsStoredInArrays]++;
 		}
 		//processing for new pulse
-		PulseHistory->Items->Add("Pulse Started");// remove me later
 		IntegratedVolume = 0;
-		CurrentBiggestFlow = -1000;
+		CurrentBiggestFlow = 0;
 		MostRecentUp = ReadingsInRawDataArray;// this is setting the position in the array of the most recent pulse start equal to the current position in the array
 	}
 	//execute on pulse end
-	if (ReadingsInRawDataArray>1&&FlowReading[ReadingsInRawDataArray-2] >= Settings->TriggerFlow && FlowReading[ReadingsInRawDataArray-1] < Settings->TriggerFlow){
-		PulseHistory->Items->Add("Pulse Ended");// remove me later
-		PulseOnTime [PulsesInGroup[GroupsStoredInArrays]] [GroupsStoredInArrays] = TimeOfReading[ReadingsInRawDataArray] - TimeOfReading[MostRecentUp];
-		PulsePeakFlow [PulsesInGroup[GroupsStoredInArrays]] [GroupsStoredInArrays] = CurrentBiggestFlow;
-	}
-	if (FlowReading[ReadingsInRawDataArray-1] > CurrentBiggestFlow){
+	if (ReadingsInRawDataArray>1&&FlowReading[ReadingsInRawDataArray-2] >= Settings->TriggerFlow && FlowReading[ReadingsInRawDataArray-1] < Settings->TriggerFlow)
+		MostRecentDown = ReadingsInRawDataArray;// this is setting the position in the array of the most recent pulse end equal to the current position in the array
+	//execute for every data point
+	if (FlowReading[ReadingsInRawDataArray-1] > CurrentBiggestFlow)
 		CurrentBiggestFlow = FlowReading[ReadingsInRawDataArray-1];
-	}
-	// The below logic does the integration.
-	// The "1000/60" converts from litres per minute to millilitres per second
-	// The "(TimeOfReading[i+1]-TimeOfReading[i-1])/2" gives the best estimate that I know of for the length of time associated with a reading
-	// For easy understanding I want to write the algebraically correct expression:
-	// IntegratedVolume = IntegratedVolume + ((TimeOfReading[i+1]-TimeOfReading[i-1])/2)*FlowReading[j]*1000/60;
-	// To make the above line actually function in code and provide and accurate answer I rearrange it to be the algebraically equivalent:
-	// IntegratedVolume = IntegratedVolume + (TimeOfReading[i+1]-TimeOfReading[i-1])*FlowReading[j]*1000/60/2;
-	// and then:
-	IntegratedVolume = IntegratedVolume + (TimeOfReading[ReadingsInRawDataArray-1]-TimeOfReading[ReadingsInRawDataArray-1-2])*FlowReading[ReadingsInRawDataArray-1-1]*(double)25/(double)3;
-
-	// idea: run a running total of pulse volume
-//-----------------------------------------------------------
-/*
-	double IntegratedVolume = 0; // this variable records the volume that passed through the OCD in the part of the pulse processed so far
-	float CurrentBiggestFlow = -1000;
-	int MostRecentUp = -1000;
-	bool Recording = false;
-	for (int i=2;(i<(RawDataArraySize-1)) && TimeOfReading[i] > 0;i++){// the unusual fence post conditions are to stop the integration line reading outside the area that it should
-		assert(TimeOfReading[i] > 0);
-		if (FlowReading[i] > CurrentBiggestFlow){
-			CurrentBiggestFlow = FlowReading[i];
-		}
-		// The below logic does the integration.
-		// The "1000/60" converts from litres per minute to millilitres per second
-		// The "(TimeOfReading[i+1]-TimeOfReading[i-1])/2" gives the best estimate that I know of for the length of time associated with a reading
-		// For easy understanding I want to write the algebraically correct expression:
-		// IntegratedVolume = IntegratedVolume + ((TimeOfReading[i+1]-TimeOfReading[i-1])/2)*FlowReading[j]*1000/60;
-		// To make the above line actually function in code and provide and accurate answer I rearrange it to be the algebraically equivalent:
-		// IntegratedVolume = IntegratedVolume + (TimeOfReading[i+1]-TimeOfReading[i-1])*FlowReading[j]*1000/60/2;
-		// and then:
-		IntegratedVolume = IntegratedVolume + (TimeOfReading[i]-TimeOfReading[i-2])*FlowReading[i-1]*(double)25/(double)3;
-		if (FlowReading[i] >= Settings->TriggerFlow && FlowReading[i-1] < Settings->TriggerFlow){
-			if (Recording){
-				PulseVolume[RecordedPulses] [ReadingsStoredInArrays]=IntegratedVolume;
-				PulseCycleTime [RecordedPulses] [ReadingsStoredInArrays] =  TimeOfReading[i] - TimeOfReading[MostRecentUp];
-				PulsePeakFlow [RecordedPulses] [ReadingsStoredInArrays] = CurrentBiggestFlow;
-				CurrentBiggestFlow = -1000;
-				RecordedPulses++;
-			}
-			IntegratedVolume = 0;
-			MostRecentUp = i;
-			Recording = true;
-		}
-		if ((FlowReading[i] <= Settings->TriggerFlow) && (FlowReading[i-1] > Settings->TriggerFlow) && Recording){
-			PulseOnTime [RecordedPulses] [ReadingsStoredInArrays] = TimeOfReading[i] - TimeOfReading[MostRecentUp];
-		}
-	}
-	PulsesInReading [ReadingsStoredInArrays] = RecordedPulses;
-	return(RecordedPulses);
-	*/
+	// explain the below line later, remember the diffrence between SCCM and ml a second, belos formula may be out by a factor of 1000
+	IntegratedVolume = IntegratedVolume + (TimeOfReading[ReadingsInRawDataArray-1]-TimeOfReading[ReadingsInRawDataArray-1-2])*FlowReading[ReadingsInRawDataArray-1-1]*(double)25/(double)3000;
 }
 void TForm1::UpdateAverages(){// averages all the pulses in the current reading
+	AveragePeakFlow[GroupsStoredInArrays]=0;
 	AveragePulseVolume[GroupsStoredInArrays]=0;
 	AveragePulseOnTime[GroupsStoredInArrays]=0;
+	AveragePulseOffTime[GroupsStoredInArrays]=0;
 	AverageCycleTime[GroupsStoredInArrays]=0;
 	AveragePeakFlow[GroupsStoredInArrays]=0;
-	for(int i=0 ; i<PulsesInGroup[GroupsStoredInArrays];i++){
-		AveragePulseVolume[GroupsStoredInArrays]=AveragePulseVolume[GroupsStoredInArrays]+PulseVolume [i][GroupsStoredInArrays];
-		AveragePulseOnTime[GroupsStoredInArrays]=AveragePulseOnTime[GroupsStoredInArrays]+PulseOnTime [i][GroupsStoredInArrays];
-		AverageCycleTime[GroupsStoredInArrays]=AverageCycleTime[GroupsStoredInArrays]+PulseCycleTime [i][GroupsStoredInArrays];
-		AveragePeakFlow[GroupsStoredInArrays]=AveragePeakFlow[GroupsStoredInArrays]+PulsePeakFlow [i][GroupsStoredInArrays];
+	for(int i=0 ; i<=PulsesInGroup[GroupsStoredInArrays];i++){
+		AveragePeakFlow		 [GroupsStoredInArrays]=AveragePeakFlow    [GroupsStoredInArrays]+PulsePeakFlow [i][GroupsStoredInArrays];
+		AverageCycleTime	 [GroupsStoredInArrays]=AverageCycleTime	 [GroupsStoredInArrays]+PulseCycleTime[i][GroupsStoredInArrays];
+		AveragePulseOnTime [GroupsStoredInArrays]=AveragePulseOnTime [GroupsStoredInArrays]+PulseOnTime 	[i][GroupsStoredInArrays];
+		AveragePulseOffTime[GroupsStoredInArrays]=AveragePulseOffTime[GroupsStoredInArrays]+PulseOffTime 	[i][GroupsStoredInArrays];
+		AveragePulseVolume [GroupsStoredInArrays]=AveragePulseVolume [GroupsStoredInArrays]+PulseVolume 	[i][GroupsStoredInArrays];
 	}
-	if(PulsesInGroup[GroupsStoredInArrays] != 0){
-		AveragePulseVolume[GroupsStoredInArrays]=AveragePulseVolume[GroupsStoredInArrays]/PulsesInGroup[GroupsStoredInArrays];
-		AveragePulseOnTime[GroupsStoredInArrays]=AveragePulseOnTime[GroupsStoredInArrays]/PulsesInGroup[GroupsStoredInArrays];
-		AverageCycleTime[GroupsStoredInArrays]=AverageCycleTime[GroupsStoredInArrays]/PulsesInGroup[GroupsStoredInArrays];
-		AveragePeakFlow[GroupsStoredInArrays]=AveragePeakFlow[GroupsStoredInArrays]/PulsesInGroup[GroupsStoredInArrays];
+	if((PulsesInGroup[GroupsStoredInArrays]+1) != 0){
+		AveragePeakFlow		 [GroupsStoredInArrays]=AveragePeakFlow    [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]+1);
+		AverageCycleTime	 [GroupsStoredInArrays]=AverageCycleTime	 [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]+1);
+		AveragePulseOnTime [GroupsStoredInArrays]=AveragePulseOnTime [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]+1);
+		AveragePulseOffTime[GroupsStoredInArrays]=AveragePulseOffTime[GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]+1);
+		AveragePulseVolume [GroupsStoredInArrays]=AveragePulseVolume [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]+1);
 	}
 }
 void TForm1::PutProcessedDataOnScreen(){
 	char tmp[100];
-	// put code here to update PulseHistory
-	sprintf(tmp,"%f",AveragePulseVolume[GroupsStoredInArrays]);
-	AvgVolume		->Text=tmp;
-	sprintf(tmp,"%f",AveragePulseOnTime[GroupsStoredInArrays]);
+	sprintf(tmp,"peak flow:%f cycle:%f on:%f off:%f volume:%f",
+			PulsePeakFlow	[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
+			PulseCycleTime[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
+			PulseOnTime 	[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
+			PulseOffTime  [PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
+			PulseVolume 	[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays]);
+	PulseHistory->Items->Add(tmp);
+	sprintf(tmp,"%f",AverageCycleTime		[GroupsStoredInArrays]);
+	AvgCycleTime 	->Text=tmp;
+	sprintf(tmp,"%f",AveragePulseOnTime	[GroupsStoredInArrays]);
 	AvgOnTime		->Text=tmp;
-	sprintf(tmp,"%f",(AverageCycleTime[GroupsStoredInArrays]-AveragePulseOnTime[GroupsStoredInArrays]));
-	AvgOffTime 	->Text=tmp;
-	sprintf(tmp,"%f",AverageCycleTime[GroupsStoredInArrays]);
-	AvgCycleTime->Text=tmp;
+	sprintf(tmp,"%f",AveragePulseOffTime[GroupsStoredInArrays]);
+	AvgOffTime		->Text=tmp;
+	sprintf(tmp,"%f",AveragePulseVolume	[GroupsStoredInArrays]);
+	AvgVolume		->Text=tmp;
 }
 void TForm1::FinishGroup(){
 	GroupsStoredInArrays++;

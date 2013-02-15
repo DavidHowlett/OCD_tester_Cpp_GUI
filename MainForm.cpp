@@ -30,7 +30,6 @@ __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner)
 	GroupIsRecording = false;
 	QueryPerformanceFrequency(&Frequency);  // get ticks per second
 	ReadingsInRawDataArray = 0;
-	PulsesRecorded->Color=clLime;
 	PulsesRecorded->Text="0";
 	AvgCycleTime	->Text="0";
 	AvgOnTime			->Text="0";
@@ -53,6 +52,13 @@ void __fastcall TForm1::FastTimerTimer(TObject *Sender)
 			ProcessRecentData();
 		}
 	}
+	char tmp[100];
+	itoa(PulsesInGroup[GroupsStoredInArrays],tmp,10);
+	PulsesRecorded->Text=tmp;
+	if (PulsesInGroup[GroupsStoredInArrays]==TargetPulsesInGroup)
+		PulsesRecorded->Color=clLime;
+	else
+		PulsesRecorded->Color=clRed;
 }
 void __fastcall TForm1::OutputDataClick(TObject *Sender)
 {
@@ -121,13 +127,6 @@ void TForm1::GetDataPoint(){
 	TimeOfReading[ReadingsInRawDataArray] = double(CurrentTicks.QuadPart - TicksAtStartOfReading.QuadPart)/double(Frequency.QuadPart); // this calculates the time in seconds from the initiation of this function
 	FlowReading[ReadingsInRawDataArray] = GenericFlowmeter->LastMassFlow;
 	ReadingsInRawDataArray++;
-	char tmp[100];
-	itoa(PulsesInGroup[GroupsStoredInArrays],tmp,10);
-	PulsesRecorded->Text=tmp;
-	if (PulsesInGroup[GroupsStoredInArrays]==TargetPulsesInGroup)
-		PulsesRecorded->Color=clLime;
-	else
-		PulsesRecorded->Color=clRed;
 	if (PulsesInGroup[GroupsStoredInArrays] >= TargetPulsesInGroup){
 		assert(PulsesInGroup[GroupsStoredInArrays] == TargetPulsesInGroup);
 		FinishGroup();

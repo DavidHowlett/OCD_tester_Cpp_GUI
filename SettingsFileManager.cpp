@@ -30,20 +30,18 @@ SettingsFileManager::UnguardedReadFile(){
 	fscanf (FilePointer,"%d",&LastRawDataFileNumber);       fgets (SettingsDescriptors[2],MaxCharsInSettingDescriptor,FilePointer);
 	fscanf (FilePointer,"%d",&LastProcessedDataFileNumber);	fgets (SettingsDescriptors[3],MaxCharsInSettingDescriptor,FilePointer);
 	fscanf (FilePointer,"%f",&TriggerFlow);									fgets (SettingsDescriptors[4],MaxCharsInSettingDescriptor,FilePointer);
-	fscanf (FilePointer,"%f",&AntibounceWaitTime);					fgets (SettingsDescriptors[5],MaxCharsInSettingDescriptor,FilePointer);
-	fscanf (FilePointer,"%f",&TimeToBeIncludedInPulseOnEitherSideOfTriggerTime);fgets (SettingsDescriptors[6],MaxCharsInSettingDescriptor,FilePointer);
 	fscanf (FilePointer,"%d",&BrokenSettingsTest);					fgets (SettingsDescriptors[7],MaxCharsInSettingDescriptor,FilePointer);
 
 	fclose (FilePointer);
 	if (1234567890==BrokenSettingsTest){
 		return 0;
 	}else{
-		int UserResponse = MessageBox(
+		int TheUserResponse = MessageBox(
 			NULL,
 			(LPCWSTR)L"The settings file was found but not read successfully\nDo you want to try again?",
 			(LPCWSTR)L"Error message",
 			MB_ICONWARNING | MB_RETRYCANCEL | MB_DEFBUTTON1);
-		if(IDRETRY == UserResponse)
+		if(IDRETRY == TheUserResponse)
 			return this->ReadFile(); // I thought that recursion would be nicer then a loop this time
 		return 2;
 	}
@@ -71,8 +69,6 @@ SettingsFileManager::UnguardedWriteFile(){
 	fprintf (FilePointer,"%d%s",LastRawDataFileNumber,SettingsDescriptors[2]);
 	fprintf (FilePointer,"%d%s",LastProcessedDataFileNumber,SettingsDescriptors[3]);
 	fprintf (FilePointer,"%f%s",TriggerFlow,SettingsDescriptors[4]);
-	fprintf (FilePointer,"%f%s",AntibounceWaitTime,SettingsDescriptors[5]);
-	fprintf (FilePointer,"%f%s",TimeToBeIncludedInPulseOnEitherSideOfTriggerTime,SettingsDescriptors[6]);
 	fprintf (FilePointer,"%d%s",BrokenSettingsTest,SettingsDescriptors[7]);
 	return 0;
 }

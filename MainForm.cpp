@@ -135,9 +135,10 @@ void  TForm1::ProcessRecentData(){ // I need to find the pulse duration, the cyc
 			PulseOnTime 	[PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = TimeOfReading[MostRecentDown					]	- TimeOfReading[MostRecentUp	];
 			PulseOffTime  [PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = TimeOfReading[ReadingsInRawDataArray-1] - TimeOfReading[MostRecentDown];
 			PulseVolume		[PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = IntegratedVolume;
+			PulsesInGroup	[GroupsStoredInArrays]++; // this being before the updateing of the averages is important and a pain in the rear to change
 			UpdateAverages();
 			PutProcessedDataOnScreen();
-			PulsesInGroup[GroupsStoredInArrays]++;
+
 		}
 		//processing for new pulse
 		IntegratedVolume = 0;
@@ -160,19 +161,19 @@ void TForm1::UpdateAverages(){// averages all the pulses in the current reading
 	AveragePulseOffTime[GroupsStoredInArrays]=0;
 	AverageCycleTime[GroupsStoredInArrays]=0;
 	AveragePeakFlow[GroupsStoredInArrays]=0;
-	for(int i=0 ; i<=PulsesInGroup[GroupsStoredInArrays];i++){
+	for(int i=0 ; i<PulsesInGroup[GroupsStoredInArrays];i++){
 		AveragePeakFlow		 [GroupsStoredInArrays]=AveragePeakFlow    [GroupsStoredInArrays]+PulsePeakFlow [i][GroupsStoredInArrays];
 		AverageCycleTime	 [GroupsStoredInArrays]=AverageCycleTime	 [GroupsStoredInArrays]+PulseCycleTime[i][GroupsStoredInArrays];
 		AveragePulseOnTime [GroupsStoredInArrays]=AveragePulseOnTime [GroupsStoredInArrays]+PulseOnTime 	[i][GroupsStoredInArrays];
 		AveragePulseOffTime[GroupsStoredInArrays]=AveragePulseOffTime[GroupsStoredInArrays]+PulseOffTime 	[i][GroupsStoredInArrays];
 		AveragePulseVolume [GroupsStoredInArrays]=AveragePulseVolume [GroupsStoredInArrays]+PulseVolume 	[i][GroupsStoredInArrays];
 	}
-	if((PulsesInGroup[GroupsStoredInArrays]+1) != 0){
-		AveragePeakFlow		 [GroupsStoredInArrays]=AveragePeakFlow    [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]+1);
-		AverageCycleTime	 [GroupsStoredInArrays]=AverageCycleTime	 [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]+1);
-		AveragePulseOnTime [GroupsStoredInArrays]=AveragePulseOnTime [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]+1);
-		AveragePulseOffTime[GroupsStoredInArrays]=AveragePulseOffTime[GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]+1);
-		AveragePulseVolume [GroupsStoredInArrays]=AveragePulseVolume [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]+1);
+	if((PulsesInGroup[GroupsStoredInArrays]) != 0){
+		AveragePeakFlow		 [GroupsStoredInArrays]=AveragePeakFlow    [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
+		AverageCycleTime	 [GroupsStoredInArrays]=AverageCycleTime	 [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
+		AveragePulseOnTime [GroupsStoredInArrays]=AveragePulseOnTime [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
+		AveragePulseOffTime[GroupsStoredInArrays]=AveragePulseOffTime[GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
+		AveragePulseVolume [GroupsStoredInArrays]=AveragePulseVolume [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
 	}
 }
 void TForm1::PutProcessedDataOnScreen(){

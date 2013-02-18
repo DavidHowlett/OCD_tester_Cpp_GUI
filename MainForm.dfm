@@ -100,6 +100,13 @@ object Form1: TForm1
     Height = 13
     Caption = 'Pulses recorded'
   end
+  object Label13: TLabel
+    Left = 248
+    Top = 40
+    Width = 233
+    Height = 13
+    Caption = 'Peak flow, Cycle time, On time, Off time, Volume'
+  end
   object Start: TButton
     Left = 8
     Top = 95
@@ -144,13 +151,12 @@ object Form1: TForm1
   end
   object PulseHistory: TListBox
     Left = 250
-    Top = 43
+    Top = 63
     Width = 432
-    Height = 182
+    Height = 162
     Anchors = [akLeft, akTop, akRight]
     ItemHeight = 13
     TabOrder = 5
-    ExplicitWidth = 431
   end
   object AvgVolume: TEdit
     Left = 120
@@ -189,10 +195,9 @@ object Form1: TForm1
     Top = 262
     Width = 429
     Height = 155
-    Anchors = [akLeft, akTop, akRight]
+    Anchors = [akLeft, akTop, akRight, akBottom]
     ItemHeight = 13
     TabOrder = 10
-    ExplicitWidth = 428
   end
   object PulsesToRecord: TEdit
     Left = 120

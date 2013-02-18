@@ -49,8 +49,8 @@ TsiFlowmeter::TsiFlowmeter(int Port){
 	StdTimeouts.WriteTotalTimeoutConstant   =100;
 	StdTimeouts.WriteTotalTimeoutMultiplier =10;
 
-	WaitForData.ReadIntervalTimeout 				=5;
-	WaitForData.ReadTotalTimeoutConstant 		=10;
+	WaitForData.ReadIntervalTimeout 		=5;
+	WaitForData.ReadTotalTimeoutConstant 	=10;
 	WaitForData.ReadTotalTimeoutMultiplier 	=2;
 	WaitForData.WriteTotalTimeoutConstant  	=100;
 	WaitForData.WriteTotalTimeoutMultiplier =10;
@@ -147,11 +147,12 @@ int TsiFlowmeter::Write(char* ToSend){             	// sends a c string to the f
 }
 bool TsiFlowmeter::CheckPresence(){
 	PurgeComm(TsiPortHandle,PURGE_RXCLEAR&PURGE_TXCLEAR);// this clears window's internal buffer
-	Write("SSR0001"); // the flowmeter should reply "OK" to this.// this also sets the reading rate to max
 	SetCommTimeouts(TsiPortHandle,&WaitForData);
+	Write("SSR0001"); // the flowmeter should reply "OK" to this.// this also sets the reading rate to max
+	//Sleep(100);
 	ReadFile(		TsiPortHandle,                        //HANDLE        hFile,
 							TmpBuffer,                          //LPVOID        lpBuffer,
-							TmpBufferSize,                    //DWORD         nNumberOfBytesToRead,
+							2,                    //DWORD         nNumberOfBytesToRead,
 							&BytesRead,                       //LPDWORD       lpNumberOfBytesRead,
 							FALSE);
 	SetCommTimeouts(TsiPortHandle,&StdTimeouts);

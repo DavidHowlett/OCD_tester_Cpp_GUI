@@ -40,6 +40,7 @@ __published:	// IDE-managed Components
 	TEdit *PulsesRecorded;
 	TButton *ClearPulseLog;
 	TButton *ClearEventLog;
+	TLabel *Label13;
 	void __fastcall FastTimerTimer(TObject *Sender);
 	void __fastcall OutputDataClick(TObject *Sender);
 	void __fastcall StartClick(TObject *Sender);

@@ -23,7 +23,7 @@ __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner)
 	Settings = new SettingsFileManager;
 	Settings->ReadFile();
 	GenericFlowmeter = new FlowmeterManager(Settings,Log);//I want this class to always have acsess to these pointers
-	GenericFlowmeter->Setup();
+
 	PulsesToRecord->Text = "3";
 	ZeroRawDataArrays();
 	ZeroProcessedDataArrays();
@@ -38,14 +38,16 @@ __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner)
 }
 void __fastcall TForm1::FastTimerTimer(TObject *Sender)
 {
+	if (!GenericFlowmeter->FlowmeterReady)
+		GenericFlowmeter->Setup();
 	GenericFlowmeter->CallMeRegularly();
 	if (GenericFlowmeter->IsThereNewData()) {// there are some things that should only be done when there is new data
 		char tmpString[100];
-		sprintf(tmpString,"%f",GenericFlowmeter->LastMassFlow);
+		sprintf(tmpString,"%f",GenericFlowmeter->MassFlow());
 		MassFlowMonitor->Text = tmpString;
-		sprintf(tmpString,"%f",GenericFlowmeter->LastTemperature);
+		sprintf(tmpString,"%f",GenericFlowmeter->Temperature());
 		TemperatureMonitor->Text = tmpString;
-		sprintf(tmpString,"%f",GenericFlowmeter->LastPressure);
+		sprintf(tmpString,"%f",GenericFlowmeter->Pressure());
 		PressureMonitor->Text = tmpString;
 		if(GroupIsRecording){
 			GetDataPoint();
@@ -59,6 +61,7 @@ void __fastcall TForm1::FastTimerTimer(TObject *Sender)
 		PulsesRecorded->Color=clLime;
 	else
 		PulsesRecorded->Color=clRed;
+
 }
 void __fastcall TForm1::OutputDataClick(TObject *Sender)
 {
@@ -125,7 +128,7 @@ void TForm1::GetDataPoint(){
 		return;
 	}
 	TimeOfReading[ReadingsInRawDataArray] = double(CurrentTicks.QuadPart - TicksAtStartOfReading.QuadPart)/double(Frequency.QuadPart); // this calculates the time in seconds from the initiation of this function
-	FlowReading[ReadingsInRawDataArray] = GenericFlowmeter->LastMassFlow;
+	FlowReading[ReadingsInRawDataArray] = GenericFlowmeter->MassFlow();
 	ReadingsInRawDataArray++;
 	if (PulsesInGroup[GroupsStoredInArrays] >= TargetPulsesInGroup){
 		assert(PulsesInGroup[GroupsStoredInArrays] == TargetPulsesInGroup);
@@ -159,6 +162,7 @@ void  TForm1::ProcessRecentData(){ // I need to find the pulse duration, the cyc
 	if (FlowReading[ReadingsInRawDataArray-1] > CurrentBiggestFlow)
 		CurrentBiggestFlow = FlowReading[ReadingsInRawDataArray-1];
 	// explain the below line later, remember the diffrence between SCCM and ml a second, belos formula may be out by a factor of 1000
+	// the time is in seconds, the flow rate is in SCCM so the volume is in SCC so the foumula is time*flowrate/60
 	IntegratedVolume = IntegratedVolume + (TimeOfReading[ReadingsInRawDataArray-1]-TimeOfReading[ReadingsInRawDataArray-1-2])*FlowReading[ReadingsInRawDataArray-1-1]*(double)25/(double)3000;
 }
 void TForm1::UpdateAverages(){// averages all the pulses in the current reading
@@ -185,7 +189,7 @@ void TForm1::UpdateAverages(){// averages all the pulses in the current reading
 }
 void TForm1::PutProcessedDataOnScreen(){
 	char tmp[100];
-	sprintf(tmp,"peak flow:%f cycle:%f on:%f off:%f volume:%f",
+	sprintf(tmp,"%f/t%f/t%f/t%f/t%f",
 			PulsePeakFlow	[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
 			PulseCycleTime[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
 			PulseOnTime 	[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],

@@ -126,6 +126,15 @@ bool FlowmeterManager::IsThereNewData(){
 		return TsiPointer->IsThereNewData();
 	return false; // if there is no flowmeter there is no new data
 }
+float FlowmeterManager::MassFlow(){ // should be SCCM
+	return LastMassFlow;
+}
+float FlowmeterManager::Temperature(){ // should be celcius
+	return LastTemperature;
+}
+float FlowmeterManager::Pressure(){ // should be bar
+	return LastPressure;
+}
 FlowmeterManager::~FlowmeterManager(){
 	delete AlicatPointer;
 	delete TsiPointer;

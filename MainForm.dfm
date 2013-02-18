@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'OCD test program'
-  ClientHeight = 441
-  ClientWidth = 710
+  ClientHeight = 453
+  ClientWidth = 758
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,8 +12,8 @@ object Form1: TForm1
   Font.Style = []
   OldCreateOrder = False
   DesignSize = (
-    710
-    441)
+    758
+    453)
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel
@@ -152,11 +152,12 @@ object Form1: TForm1
   object PulseHistory: TListBox
     Left = 250
     Top = 63
-    Width = 432
+    Width = 480
     Height = 162
     Anchors = [akLeft, akTop, akRight]
     ItemHeight = 13
     TabOrder = 5
+    ExplicitWidth = 432
   end
   object AvgVolume: TEdit
     Left = 120
@@ -193,11 +194,13 @@ object Form1: TForm1
   object Log: TListBox
     Left = 253
     Top = 262
-    Width = 429
-    Height = 155
+    Width = 477
+    Height = 167
     Anchors = [akLeft, akTop, akRight, akBottom]
     ItemHeight = 13
     TabOrder = 10
+    ExplicitWidth = 429
+    ExplicitHeight = 155
   end
   object PulsesToRecord: TEdit
     Left = 120

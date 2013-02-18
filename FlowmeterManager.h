@@ -7,7 +7,7 @@ class TsiFlowmeter;    // I chose to forward declare this rather then include th
 class FlowmeterManager{
 	public:
 		FlowmeterManager(SettingsFileManager*, TListBox*);
-		int Setup(); // this method should be repetitively called until there is a valid flowmeter setup
+		void Setup(); // this method should be repetitively called until there is a valid flowmeter setup
 		int CallMeRegularly();
 		bool IsThereNewData();
 		float MassFlow(); // should be SCCM
@@ -31,7 +31,8 @@ class FlowmeterManager{
 		TListBox* FlowmeterStatus;
 		HANDLE aComFile;
 		char tmp[100];
-		int SetupStatusFlag;
+		int SetupProgressFlag;
+		int PortNum;
 };
 #endif
 

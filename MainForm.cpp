@@ -38,8 +38,6 @@ __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner)
 }
 void __fastcall TForm1::FastTimerTimer(TObject *Sender)
 {
-	if (!GenericFlowmeter->FlowmeterReady)
-		GenericFlowmeter->Setup();
 	GenericFlowmeter->CallMeRegularly();
 	if (GenericFlowmeter->IsThereNewData()) {// there are some things that should only be done when there is new data
 		char tmpString[100];

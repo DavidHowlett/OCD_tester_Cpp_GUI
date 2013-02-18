@@ -58,6 +58,22 @@ TsiFlowmeter::TsiFlowmeter(int Port){
 	SetCommTimeouts(TsiPortHandle,&StdTimeouts);
 
 }
+bool TsiFlowmeter::CheckPresence(){
+	PurgeComm(TsiPortHandle,PURGE_RXCLEAR&PURGE_TXCLEAR);// this clears window's internal buffer
+	SetCommTimeouts(TsiPortHandle,&WaitForData);
+	Write("SSR0001"); // the flowmeter should reply "OK" to this.// this also sets the reading rate to max
+	Sleep(10);
+	ReadFile(		TsiPortHandle,                        //HANDLE        hFile,
+							TmpBuffer,                          //LPVOID        lpBuffer,
+							2,                    //DWORD         nNumberOfBytesToRead,
+							&BytesRead,                       //LPDWORD       lpNumberOfBytesRead,
+							FALSE);
+	SetCommTimeouts(TsiPortHandle,&StdTimeouts);
+	if('O'==TmpBuffer[0] && 'K'==TmpBuffer[1])
+		return true;
+	else
+		return false;
+}
 void TsiFlowmeter::CallMeRegularly(){
 	if(	(DataCount>=6002&&WaitCount >0)
 		||(DataCount>=6000)&&(WaitCount>10)){
@@ -115,7 +131,7 @@ void TsiFlowmeter::AskForData(){
 	PurgeComm(TsiPortHandle,PURGE_RXCLEAR&PURGE_TXCLEAR);
 	DataCount = 0;
 	Write("DBFTP1000");
-	Sleep(10); // experimentaly it was found that sleeping for 7 or less was unreliable.
+	//Sleep(10); // experimentaly it was found that sleeping for 7 or less was unreliable.
 }
 bool TsiFlowmeter::IsThereNewData(){
 	// the over all intention is that the other classes can detect if there is
@@ -145,22 +161,7 @@ int TsiFlowmeter::Write(char* ToSend){             	// sends a c string to the f
 								FALSE);                  //LPOVERLAPPED lpOverlapped
 	return BytesWritten;
 }
-bool TsiFlowmeter::CheckPresence(){
-	PurgeComm(TsiPortHandle,PURGE_RXCLEAR&PURGE_TXCLEAR);// this clears window's internal buffer
-	SetCommTimeouts(TsiPortHandle,&WaitForData);
-	Write("SSR0001"); // the flowmeter should reply "OK" to this.// this also sets the reading rate to max
-	//Sleep(100);
-	ReadFile(		TsiPortHandle,                        //HANDLE        hFile,
-							TmpBuffer,                          //LPVOID        lpBuffer,
-							2,                    //DWORD         nNumberOfBytesToRead,
-							&BytesRead,                       //LPDWORD       lpNumberOfBytesRead,
-							FALSE);
-	SetCommTimeouts(TsiPortHandle,&StdTimeouts);
-	if('O'==TmpBuffer[0] && 'K'==TmpBuffer[1])
-		return true;
-	else
-		return false;
-}
+
 TsiFlowmeter::~TsiFlowmeter(){
 	PurgeComm(TsiPortHandle,PURGE_RXCLEAR&PURGE_TXCLEAR);// this ditches the data in the port
 	CloseHandle(TsiPortHandle);

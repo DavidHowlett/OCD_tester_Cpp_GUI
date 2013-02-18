@@ -9,9 +9,20 @@ FlowmeterManager::FlowmeterManager(SettingsFileManager* GivenSettingsPointer,TLi
 	SettingsPointer=GivenSettingsPointer;
 	FlowmeterStatus=GivenTEditPointer;
 	FlowmeterReady = false;
+	SetupStatusFlag = 0;
 	FlowmeterType = None;
 }
+FlowmeterManager::CallMeRegularly(){
+	// idea: insert code here to check if the flowmeter is working properly and if not then set FlowmeterReady = false;
+	if(!FlowmeterReady)
+		Setup();
+	if (Tsi == FlowmeterType)
+		TsiPointer->CallMeRegularly();
+	return 0;
+}
 int FlowmeterManager::Setup(){ // this function returns 0 when it sucsessfuly sets a flowmeter up
+
+
 	int PortNum;
 // the flowmeter port does not change often so first try the one that worked last time
 	PortNum = SettingsPointer->LatestGoodFlowmeterPort;
@@ -103,22 +114,7 @@ bool FlowmeterManager::AttemptAlicatSetup(int Port){// this function is evil bec
 		return false;
 	}
 }
-FlowmeterManager::CallMeRegularly(){
-	if (Alicat == FlowmeterType) {
-		LastMassFlow 		= AlicatPointer->MassFlow();
-		LastTemperature = AlicatPointer->Temperature();
-		LastPressure		= AlicatPointer->Pressure();
-		return 0;
-	}
-	if (Tsi == FlowmeterType) {
-		TsiPointer->CallMeRegularly();
-		LastMassFlow 		= TsiPointer->MassFlow();
-		LastTemperature = TsiPointer->Temperature();
-		LastPressure		= TsiPointer->Pressure();
-		return 0;
-	}
-	return 1;
-}
+
 bool FlowmeterManager::IsThereNewData(){
 	if (Alicat == FlowmeterType)
 		return true;// this should probably be fixed later, the alicat class lacks the desired functionality
@@ -127,13 +123,22 @@ bool FlowmeterManager::IsThereNewData(){
 	return false; // if there is no flowmeter there is no new data
 }
 float FlowmeterManager::MassFlow(){ // should be SCCM
-	return LastMassFlow;
+	if (Alicat == FlowmeterType)
+		return AlicatPointer->MassFlow();
+	if (Tsi == FlowmeterType)
+		return TsiPointer->MassFlow();
 }
 float FlowmeterManager::Temperature(){ // should be celcius
-	return LastTemperature;
+	if (Alicat == FlowmeterType)
+		return AlicatPointer->Temperature();
+	if (Tsi == FlowmeterType)
+		return TsiPointer->Temperature();
 }
 float FlowmeterManager::Pressure(){ // should be bar
-	return LastPressure;
+	if (Alicat == FlowmeterType)
+		return AlicatPointer->Pressure();
+	if (Tsi == FlowmeterType)
+		return TsiPointer->Pressure();
 }
 FlowmeterManager::~FlowmeterManager(){
 	delete AlicatPointer;

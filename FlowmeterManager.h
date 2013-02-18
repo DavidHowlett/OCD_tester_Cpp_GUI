@@ -25,15 +25,13 @@ class FlowmeterManager{
 
 		#define MAX_PORT_NUMBER 200 // this is the largest port number the program can cope with
 		bool PortExistence[MAX_PORT_NUMBER];
-		float LastMassFlow; // should be SCCM
-		float LastTemperature; // should be celcius
-		float LastPressure; // should be bar
 		AlicatFlowmeter* AlicatPointer;  // this creates a pointer of type: flowmeter class instance
 		TsiFlowmeter* TsiPointer;
 		SettingsFileManager* SettingsPointer;
 		TListBox* FlowmeterStatus;
 		HANDLE aComFile;
 		char tmp[100];
+		int SetupStatusFlag;
 };
 #endif
 

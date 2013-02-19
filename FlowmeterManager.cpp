@@ -9,7 +9,7 @@ FlowmeterManager::FlowmeterManager(SettingsFileManager* GivenSettingsPointer,TLi
 	SettingsPointer=GivenSettingsPointer;
 	FlowmeterStatus=GivenTEditPointer;
 	FlowmeterReady = false;
-	SetupProgressFlag = 0;
+	PortNum = 0; // a port number of 0 is a special value
 	FlowmeterType = None;
 }
 FlowmeterManager::CallMeRegularly(){
@@ -18,52 +18,33 @@ FlowmeterManager::CallMeRegularly(){
 	if(Tsi == FlowmeterType)	TsiPointer->CallMeRegularly();
 	return 0;
 }
-void FlowmeterManager::Setup(){ // this function returns 0 when it sucsessfuly sets a flowmeter up
-	if(0==SetupProgressFlag++){
+void FlowmeterManager::Setup(){ // this method should finish quickly to allow processing of the message queue.
 	// the flowmeter port does not change often so first try the one that worked last time
-		PortNum = SettingsPointer->LatestGoodFlowmeterPort;
-		if (TestPortExistence(PortNum)){
-			if(AttemptTsiSetup(PortNum))
-				return;
-			AttemptAlicatSetup(PortNum);
-		}
-		return;
+	// and then systematicly try them all
+	int TmpPortNum;
+	if(PortNum==0)
+		TmpPortNum = SettingsPointer->LatestGoodFlowmeterPort;
+	else
+		TmpPortNum = PortNum;
+	if(TestPortExistence(TmpPortNum)){
+		if (AttemptTsiSetup(TmpPortNum))
+			return ;
+		if (AttemptAlicatSetup(TmpPortNum))
+			return ;
 	}
-	if(1==SetupProgressFlag++){
-	// now systematically try all the ports
-		for (PortNum = 0;(PortNum < MAX_PORT_NUMBER) && (!FlowmeterReady); PortNum++) {
-			if(TestPortExistence(PortNum)){
-				PortExistence[PortNum] =true;
-				if(AttemptTsiSetup(PortNum))
-					return ;
-			}else{
-				PortExistence[PortNum] =false;
-			}
-		}
-		return;
-	}
-	if(2==SetupProgressFlag++){
-		for (PortNum = 0;(PortNum < MAX_PORT_NUMBER) && (!FlowmeterReady); PortNum++) { // I seperate the alicat setup attempts from the tsi setup attempts because windows takes a little bit ro relace a COM port
-			if(PortExistence[PortNum]){
+	PortNum++;
 
-				if(AttemptAlicatSetup(PortNum))
-					return ;
-			}
-		}
-		return;
-	}
-	if(3==SetupProgressFlag){
-		SetupProgressFlag = 0;
-		if(!FlowmeterReady)
-			FlowmeterStatus->Items->Add("Warning: no flowmeter found");
-		return;
+	// if no flowmeter is found then tell the user and restart the search
+	if(PortNum>MAX_PORT_NUMBER){
+		PortNum=1;
+		FlowmeterStatus->Items->Add("Warning: no flowmeter found");
 	}
 	return;
 }
-bool FlowmeterManager::TestPortExistence(int Port){// it would save the time of the user if the most recent sucsessfull flowmeter port detection was recorded in the settings file and then checked first
+bool FlowmeterManager::TestPortExistence(int GivenPort){// it would save the time of the user if the most recent sucsessfull flowmeter port detection was recorded in the settings file and then checked first
 	const size_t NewSize = 100;
 	wchar_t MyWideString[NewSize];
-	swprintf(MyWideString,NewSize, L"\\\\.\\COM%d",Port); // note that this is the wide char equivelent of sprintf, the capital L tells the program that input string should be wide char
+	swprintf(MyWideString,NewSize, L"\\\\.\\COM%d",GivenPort); // note that this is the wide char equivelent of sprintf, the capital L tells the program that input string should be wide char
 	aComFile = CreateFile(					   	MyWideString,  	            //LPCTSTR lpFileName,
 												GENERIC_READ | GENERIC_WRITE, //DWORD dwDesiredAccess ,
 												0,	                  //DWORD dwShareMode (0 for COM port access),
@@ -80,16 +61,16 @@ bool FlowmeterManager::TestPortExistence(int Port){// it would save the time of 
 		return true;
 	}
 }
-bool FlowmeterManager::AttemptTsiSetup(int Port){
-	sprintf(tmp,"Searching for TSI flowmeter on port %d",PortNum);
+bool FlowmeterManager::AttemptTsiSetup(int GivenPort){
+	sprintf(tmp,"Searching for TSI flowmeter on port %d",GivenPort);
 	FlowmeterStatus->Items->Add(tmp);
-	TsiPointer = new TsiFlowmeter(Port);
+	TsiPointer = new TsiFlowmeter(GivenPort);
 	if (TsiPointer->CheckPresence()) {
 		FlowmeterReady = true;
 		FlowmeterType = Tsi;
-		SettingsPointer->LatestGoodFlowmeterPort = Port;
+		SettingsPointer->LatestGoodFlowmeterPort = GivenPort;
 		SettingsPointer->WriteFile();
-		sprintf(tmp,"TSI flowmeter found on port %d",Port);
+		sprintf(tmp,"TSI flowmeter found on port %d",GivenPort);
 		FlowmeterStatus->Items->Add(tmp);
 		return true;
 	}else{
@@ -97,11 +78,11 @@ bool FlowmeterManager::AttemptTsiSetup(int Port){
 		return false;
 	}
 }
-bool FlowmeterManager::AttemptAlicatSetup(int Port){// this function is evil because it starts a class and does not close it
-	sprintf(tmp,"Searching for Alicat flowmeter on port %d",PortNum);
+bool FlowmeterManager::AttemptAlicatSetup(int GivenPort){// this function is evil because it starts a class and does not close it
+	sprintf(tmp,"Searching for Alicat flowmeter on port %d",GivenPort);
 	FlowmeterStatus->Items->Add(tmp);
 	char Name[10];
-	sprintf(Name,"COM%d",Port);
+	sprintf(Name,"COM%d",GivenPort);
 	AlicatPointer = new AlicatFlowmeter(True);
 	AlicatPointer->Setup(Name,38400,'N',8,1);             //COM port, baud rate, parity, bytes per bit, stop bits
 	AlicatPointer->Open();                                   //Enable port access
@@ -110,9 +91,9 @@ bool FlowmeterManager::AttemptAlicatSetup(int Port){// this function is evil bec
 	if (AlicatPointer->MassFlow()!= -2){                                // this never seems to be null
 		FlowmeterReady = true;
 		FlowmeterType = Alicat;
-		SettingsPointer->LatestGoodFlowmeterPort = Port;
+		SettingsPointer->LatestGoodFlowmeterPort = GivenPort;
 		SettingsPointer->WriteFile();
-		sprintf(tmp,"Alicat flowmeter found on found on port %d",Port);
+		sprintf(tmp,"Alicat flowmeter found on found on port %d",GivenPort);
 		FlowmeterStatus->Items->Add(tmp);
 		return true;
 	}else{

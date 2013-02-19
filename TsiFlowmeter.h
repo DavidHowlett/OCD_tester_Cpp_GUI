@@ -9,9 +9,9 @@ class TsiFlowmeter{
 		bool CheckPresence();		  	// checks if the flowmeter answers to sent data
 		void CallMeRegularly();
 		bool IsThereNewData();
-		float MassFlow();
-		float Temperature();
-		float Pressure();
+		float MassFlow(); // should be SCCM
+		float Temperature(); // should be celcius
+		float Pressure(); // should be bar
 		~TsiFlowmeter();
 	private:
 		void AskForData();

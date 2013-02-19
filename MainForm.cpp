@@ -52,14 +52,6 @@ void __fastcall TForm1::FastTimerTimer(TObject *Sender)
 			ProcessRecentData();
 		}
 	}
-	char tmp[100];
-	itoa(PulsesInGroup[GroupsStoredInArrays],tmp,10);
-	PulsesRecorded->Text=tmp;
-	if (PulsesInGroup[GroupsStoredInArrays]==TargetPulsesInGroup)
-		PulsesRecorded->Color=clLime;
-	else
-		PulsesRecorded->Color=clRed;
-
 }
 void __fastcall TForm1::OutputDataClick(TObject *Sender)
 {
@@ -141,10 +133,10 @@ void  TForm1::ProcessRecentData(){ // I need to find the pulse duration, the cyc
 		if(MostRecentUp>0.1){// this stops the first up triggering the compleation of a pulse
 			PulsePeakFlow [PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = CurrentBiggestFlow;
 			PulseCycleTime[PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = TimeOfReading[ReadingsInRawDataArray-1] - TimeOfReading[MostRecentUp	];
-			PulseOnTime 	[PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = TimeOfReading[MostRecentDown					]	- TimeOfReading[MostRecentUp	];
+			PulseOnTime   [PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = TimeOfReading[MostRecentDown					]	- TimeOfReading[MostRecentUp	];
 			PulseOffTime  [PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = TimeOfReading[ReadingsInRawDataArray-1] - TimeOfReading[MostRecentDown];
-			PulseVolume		[PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = IntegratedVolume;
-			PulsesInGroup	[GroupsStoredInArrays]++; // this being before the updateing of the averages is important and a pain in the rear to change
+			PulseVolume	  [PulsesInGroup[GroupsStoredInArrays]][GroupsStoredInArrays] = IntegratedVolume;
+			PulsesInGroup [GroupsStoredInArrays]++; // this being before the updateing of the averages is important and a pain in the rear to change
 			UpdateAverages();
 			PutProcessedDataOnScreen();
 		}
@@ -160,8 +152,9 @@ void  TForm1::ProcessRecentData(){ // I need to find the pulse duration, the cyc
 	if (FlowReading[ReadingsInRawDataArray-1] > CurrentBiggestFlow)
 		CurrentBiggestFlow = FlowReading[ReadingsInRawDataArray-1];
 	// explain the below line later, remember the diffrence between SCCM and ml a second, belos formula may be out by a factor of 1000
-	// the time is in seconds, the flow rate is in SCCM so the volume is in SCC so the foumula is time*flowrate/60
-	IntegratedVolume = IntegratedVolume + (TimeOfReading[ReadingsInRawDataArray-1]-TimeOfReading[ReadingsInRawDataArray-1-2])*FlowReading[ReadingsInRawDataArray-1-1]*(double)25/(double)3000;
+	// the time is in seconds, the flow rate is in SCCM so the volume is in SCC so the foumula is time*flowrate/60 then there is a divide by two to account for the double counting of time
+	IntegratedVolume+=(TimeOfReading[ReadingsInRawDataArray-1]-TimeOfReading[ReadingsInRawDataArray-1-2])*FlowReading[ReadingsInRawDataArray-1-1]/120.0;
+	UpdatePulsesRecorded();
 }
 void TForm1::UpdateAverages(){// averages all the pulses in the current reading
 	AveragePeakFlow[GroupsStoredInArrays]=0;
@@ -187,7 +180,7 @@ void TForm1::UpdateAverages(){// averages all the pulses in the current reading
 }
 void TForm1::PutProcessedDataOnScreen(){
 	char tmp[100];
-	sprintf(tmp,"%f/t%f/t%f/t%f/t%f",
+	sprintf(tmp,"%f \t%f \t%f \t%f \t%f",
 			PulsePeakFlow	[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
 			PulseCycleTime[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
 			PulseOnTime 	[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
@@ -297,11 +290,17 @@ void __fastcall TForm1::ClearPulseLogClick(TObject *Sender)
 {
 	PulseHistory->Clear();
 }
-//---------------------------------------------------------------------------
 
 void __fastcall TForm1::ClearEventLogClick(TObject *Sender)
 {
 	Log->Clear();
 }
-//---------------------------------------------------------------------------
-
+void TForm1::UpdatePulsesRecorded(){
+	char tmp[100];
+	itoa(PulsesInGroup[GroupsStoredInArrays],tmp,10);
+	PulsesRecorded->Text=tmp;
+	if (PulsesInGroup[GroupsStoredInArrays]==TargetPulsesInGroup)
+		PulsesRecorded->Color=clLime;
+	else
+		PulsesRecorded->Color=clRed;
+}

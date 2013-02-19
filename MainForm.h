@@ -60,6 +60,7 @@ private:	// User declarations
 
 	void SaveRawData();     // this saves the raw experemental data to a text file. the int passed to it indicates the file number that it should be saved to
 	void SaveProcessedData();
+	void UpdatePulsesRecorded();
 private:
 	LARGE_INTEGER Frequency;        // ticks per second
 	LARGE_INTEGER TicksAtStartOfReading;           // ticks

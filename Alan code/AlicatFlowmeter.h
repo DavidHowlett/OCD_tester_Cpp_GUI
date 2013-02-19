@@ -50,10 +50,10 @@ private:
 	//MeanGasType is not implemented in this release... ;-)
 public:
 	//Functions to access the read data:
-	float      Pressure          ();                         //Return the current pressure
+	float      Pressure          ();                         //Return the current pressure    (Bar)
 	float      Temperature       ();                         //Return the current temperature (Celcius)
-	float      VolumetricFlow    ();                         //Return the current volumetric flow (SCCM)
-	float      MassFlow          ();                         //Return the current mass flow (bar)
+	float      VolumetricFlow    ();                         //Return the current volumetric flow (CCM)
+	float      MassFlow          ();                         //Return the current mass flow (SCCM)
 	String     GasType           ();                         //Return the current gas type (eg "Air")
 	float      MeanPressure      ();                         //Return the mean Pressure
 	float      MeanTemperature   ();                         //Return the mean Temperature

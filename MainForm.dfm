@@ -157,7 +157,6 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akRight]
     ItemHeight = 13
     TabOrder = 5
-    ExplicitWidth = 432
   end
   object AvgVolume: TEdit
     Left = 120
@@ -199,8 +198,6 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akRight, akBottom]
     ItemHeight = 13
     TabOrder = 10
-    ExplicitWidth = 429
-    ExplicitHeight = 155
   end
   object PulsesToRecord: TEdit
     Left = 120

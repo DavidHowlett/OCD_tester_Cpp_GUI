@@ -1,4 +1,4 @@
-22		(integer)		The port on which the program most recently found a flowmeter
+25		(integer)		The port on which the program most recently found a flowmeter
 5		(integer)		The length of time in ms between individual raw data readings 
 69		(integer)		The most recently used raw data file number 
 7		(integer)		The most recently used analysed data file number 

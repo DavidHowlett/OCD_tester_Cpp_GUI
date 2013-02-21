@@ -2,6 +2,7 @@
 #include "SettingsFileManager.h"
 #include "TsiFlowmeter.h"
 #include "AlicatFlowmeter.h"
+#include "AlicatFlowmeterV2.h"
 #include "FlowmeterManager.h"
 
 //---------------------------------------------------------------------------
@@ -114,18 +115,21 @@ float FlowmeterManager::MassFlow(){ // should be SCCM
 		return AlicatPointer->MassFlow();
 	if (Tsi == FlowmeterType)
 		return TsiPointer->MassFlow();
+	return -1;
 }
 float FlowmeterManager::Temperature(){ // should be celcius
 	if (Alicat == FlowmeterType)
 		return AlicatPointer->Temperature();
 	if (Tsi == FlowmeterType)
 		return TsiPointer->Temperature();
+	return -1;
 }
 float FlowmeterManager::Pressure(){ // should be bar
 	if (Alicat == FlowmeterType)
 		return AlicatPointer->Pressure();
 	if (Tsi == FlowmeterType)
 		return TsiPointer->Pressure();
+	return -1;
 }
 FlowmeterManager::~FlowmeterManager(){
 	delete AlicatPointer;

@@ -24,12 +24,12 @@ TsiFlowmeter::TsiFlowmeter(int Port){
 	wchar_t MyWideString[Newsize];
 	swprintf(MyWideString,Newsize, L"\\\\.\\COM%d",Port); // note that this is the wide char equivelent of sprintf, the capital L tells the program that input string should be wide char
 	TsiPortHandle = CreateFile(	MyWideString,  	            //LPCTSTR lpFileName,
-															GENERIC_READ | GENERIC_WRITE, //DWORD dwDesiredAccess ,
-															0,	                  //DWORD dwShareMode (0 for COM port access),
-															SECURITY_ANONYMOUS,	  //LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-															OPEN_EXISTING,	      //DWORD dwCreationDisposition (necessary to be OPEN_EXISTING for COM ports),
-															FILE_ATTRIBUTE_NORMAL,//DWORD dwFlagsAndAttributes,
-															0);	                  //HANDLE hTemplateFile
+								GENERIC_READ | GENERIC_WRITE, //DWORD dwDesiredAccess ,
+								0,	                  //DWORD dwShareMode (0 for COM port access),
+								SECURITY_ANONYMOUS,	  //LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+								OPEN_EXISTING,	      //DWORD dwCreationDisposition (necessary to be OPEN_EXISTING for COM ports),
+								FILE_ATTRIBUTE_NORMAL,//DWORD dwFlagsAndAttributes,
+								0);	                  //HANDLE hTemplateFile
 	assert((TsiPortHandle!=INVALID_HANDLE_VALUE)&&(TsiPortHandle!=NULL));
 	DCB dcbCommPort;   //This structure is used to hold the COM port parameters
 	dcbCommPort.DCBlength = sizeof(DCB); //This never needs to be changed, so set it on startup
@@ -85,10 +85,10 @@ void TsiFlowmeter::CallMeRegularly(){
 		RingPosition-=2; // the TSI terminates data with 2 bytes this is not useful so it is deleted
 	}
 	ReadFile(		TsiPortHandle,	//HANDLE        hFile,
-							TmpBuffer,      //LPVOID        lpBuffer,
-							TmpBufferSize,   //DWORD         nNumberOfBytesToRead,
-							&BytesRead,     //LPDWORD       lpNumberOfBytesRead,
-							FALSE);
+					TmpBuffer,      //LPVOID        lpBuffer,
+					TmpBufferSize,   //DWORD         nNumberOfBytesToRead,
+					&BytesRead,     //LPDWORD       lpNumberOfBytesRead,
+					FALSE);
 
 	Ring->WriteString(RingPosition+1,BytesRead,TmpBuffer);
 	DataCount+=BytesRead;

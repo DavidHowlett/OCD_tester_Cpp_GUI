@@ -81,6 +81,10 @@
 				<DependentOn>Alan code\RS232Primitive.h</DependentOn>
 				<BuildOrder>9</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="AlicatFlowmeterV2.cpp">
+				<DependentOn>AlicatFlowmeterV2.h</DependentOn>
+				<BuildOrder>11</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="FlowmeterManager.cpp">
 				<DependentOn>FlowmeterManager.h</DependentOn>
 				<BuildOrder>5</BuildOrder>

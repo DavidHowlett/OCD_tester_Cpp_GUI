@@ -9,13 +9,13 @@ class AlicatFlowmeterV2{ // this class is based on the TsiFlowmeter class
 		bool CheckPresence();		  	// checks if the flowmeter answers to sent data
 		void CallMeRegularly();
 		bool IsThereNewData();
-		float DataAge();   		// the age of the most recent data measured in seconds.
+		//float DataAge();   		// the age of the most recent data measured in seconds.
 		float MassFlow(); 		// should be SCCM
 		float Temperature(); 	// should be celcius
 		float Pressure(); 		// should be bar
 		~AlicatFlowmeterV2();
 	private:
-		bool TestDataWithOffset(int Offset);
+		bool ProcessData();
 		int Write(char*);       // sends a c string to the flowmeter
 	private:
 		long long RingPosition; // this is the position of the most recently written char in the buffer
@@ -23,7 +23,6 @@ class AlicatFlowmeterV2{ // this class is based on the TsiFlowmeter class
 
 
 
-		long long PositionToTry;
 		long long PreviousGoodPosition;
 		bool ThereIsNewData;
 
@@ -36,6 +35,7 @@ class AlicatFlowmeterV2{ // this class is based on the TsiFlowmeter class
 		int DiagnosticBuffer[RingSize];
 		COMMTIMEOUTS StdTimeouts;
 		float TmpMassFlow;
+		float TmpVolumetricFlow;
 		float TmpTemperature;
 		float TmpPressure;
 		float LastMassFlow;

@@ -9,6 +9,7 @@ class TsiFlowmeter{
 		bool CheckPresence();		  	// checks if the flowmeter answers to sent data
 		void CallMeRegularly();
 		bool IsThereNewData();
+		//float DataAge();   		// the age of the most recent data measured in seconds.
 		float MassFlow(); // should be SCCM
 		float Temperature(); // should be celcius
 		float Pressure(); // should be bar

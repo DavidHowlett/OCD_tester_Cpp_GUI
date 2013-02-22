@@ -1,7 +1,7 @@
 #ifndef FlowmeterManagerH
 #define FlowmeterManagerH
 class SettingsFileManager;
-class AlicatFlowmeter; // I chose to forward declare this rather then include the whole header file
+class AlicatFlowmeterV2; // I chose to forward declare this rather then include the whole header file
 class TsiFlowmeter;    // I chose to forward declare this rather then include the whole header file
 //---------------------------------------------------------------------------
 class FlowmeterManager{
@@ -25,7 +25,7 @@ class FlowmeterManager{
 
 		#define MAX_PORT_NUMBER 200 // this is the largest port number the program can cope with
 		//bool PortExistence[MAX_PORT_NUMBER];
-		AlicatFlowmeter* AlicatPointer;  // this creates a pointer of type: flowmeter class instance
+		AlicatFlowmeterV2* AlicatPointer;  // this creates a pointer of type: flowmeter class instance
 		TsiFlowmeter* TsiPointer;
 		SettingsFileManager* SettingsPointer;
 		TListBox* FlowmeterStatus;

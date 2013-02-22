@@ -1,7 +1,7 @@
 #include <iostream.h>
 #include "SettingsFileManager.h"
 #include "TsiFlowmeter.h"
-#include "AlicatFlowmeter.h"
+//#include "AlicatFlowmeter.h"
 #include "AlicatFlowmeterV2.h"
 #include "FlowmeterManager.h"
 
@@ -17,6 +17,7 @@ FlowmeterManager::CallMeRegularly(){
 	// idea: insert code here to check if the flowmeter is working properly and if not then set FlowmeterReady = false;
 	if(!FlowmeterReady)			Setup();
 	if(Tsi == FlowmeterType)	TsiPointer->CallMeRegularly();
+	if(Alicat == FlowmeterType)	AlicatPointer->CallMeRegularly();
 	return 0;
 }
 void FlowmeterManager::Setup(){ // this method should finish quickly to allow processing of the message queue.
@@ -82,30 +83,25 @@ bool FlowmeterManager::AttemptTsiSetup(int GivenPort){
 bool FlowmeterManager::AttemptAlicatSetup(int GivenPort){// this function is evil because it starts a class and does not close it
 	sprintf(tmp,"Searching for Alicat flowmeter on port %d",GivenPort);
 	FlowmeterStatus->Items->Add(tmp);
-	char Name[10];
-	sprintf(Name,"COM%d",GivenPort);
-	AlicatPointer = new AlicatFlowmeter(True);
-	AlicatPointer->Setup(Name,38400,'N',8,1);             //COM port, baud rate, parity, bytes per bit, stop bits
-	AlicatPointer->Open();                                   //Enable port access
-	AlicatPointer->Resume();
-	Sleep(100); // this alows the flowmeter class to get some data so it can be used safely
-	if (AlicatPointer->MassFlow()!= -2){                                // this never seems to be null
+	AlicatPointer = new AlicatFlowmeterV2(GivenPort);
+
+	if (AlicatPointer->CheckPresence()) {
 		FlowmeterReady = true;
 		FlowmeterType = Alicat;
 		SettingsPointer->LatestGoodFlowmeterPort = GivenPort;
 		SettingsPointer->WriteFile();
-		sprintf(tmp,"Alicat flowmeter found on found on port %d",GivenPort);
+		sprintf(tmp,"Alicat flowmeter found on port %d",GivenPort);
 		FlowmeterStatus->Items->Add(tmp);
 		return true;
 	}else{
-		AlicatPointer->Close();
+		delete AlicatPointer;
 		return false;
 	}
 }
 
 bool FlowmeterManager::IsThereNewData(){
 	if (Alicat == FlowmeterType)
-		return true;// this should probably be fixed later, the alicat class lacks the desired functionality
+		return AlicatPointer->IsThereNewData();// this should probably be fixed later, the alicat class lacks the desired functionality
 	if (Tsi == FlowmeterType)
 		return TsiPointer->IsThereNewData();
 	return false; // if there is no flowmeter there is no new data

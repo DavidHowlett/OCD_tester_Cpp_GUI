@@ -23,15 +23,6 @@ __published:	// IDE-managed Components
 	TEdit *TemperatureMonitor;
 	TEdit *PressureMonitor;
 	TButton *OutputData;
-	TListBox *PulseHistory;
-	TLabel *Label7;
-	TLabel *Label8;
-	TLabel *Label9;
-	TLabel *Label10;
-	TEdit *AvgVolume;
-	TEdit *AvgOnTime;
-	TEdit *AvgOffTime;
-	TEdit *AvgCycleTime;
 	TTimer *FastTimer;
 	TListBox *Log;
 	TLabel *Label11;
@@ -41,6 +32,8 @@ __published:	// IDE-managed Components
 	TButton *ClearPulseLog;
 	TButton *ClearEventLog;
 	TLabel *Label13;
+	TMemo *PulseHistory;
+	TEdit *RunningAvgs;
 	void __fastcall FastTimerTimer(TObject *Sender);
 	void __fastcall OutputDataClick(TObject *Sender);
 	void __fastcall StartClick(TObject *Sender);

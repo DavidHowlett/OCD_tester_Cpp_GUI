@@ -9,7 +9,7 @@ class AlicatFlowmeterV2{ // this class is based on the TsiFlowmeter class
 		bool CheckPresence();		  	// checks if the flowmeter answers to sent data
 		void CallMeRegularly();
 		bool IsThereNewData();
-		//float DataAge();   		// the age of the most recent data measured in seconds.
+		double DataAge();   		// the age of the most recent data measured in seconds.
 		float MassFlow(); 		// should be SCCM
 		float Temperature(); 	// should be celcius
 		float Pressure(); 		// should be bar
@@ -25,6 +25,8 @@ class AlicatFlowmeterV2{ // this class is based on the TsiFlowmeter class
 
 		long long PreviousGoodPosition;
 		bool ThereIsNewData;
+		LARGE_INTEGER TicksAssosiatedWithLastGoodData;
+		LARGE_INTEGER Frequency;        // ticks per second
 
 		HANDLE AlicatPortHandle;
 		static const int TmpBufferSize=4000;

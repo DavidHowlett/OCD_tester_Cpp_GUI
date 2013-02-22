@@ -11,6 +11,7 @@ AlicatFlowmeterV2::AlicatFlowmeterV2(int Port){
 	LastTemperature 	= -2;
 	LastPressure 		= -2;
 	PreviousGoodPosition= -1; // this is deliberately initialised to a bogus position
+	QueryPerformanceFrequency(&Frequency);  // get ticks per second
 	Ring = new RingBuffer(RingSize);
 	for (RingPosition=0;RingPosition<RingSize;RingPosition++)
 		Ring->Write(RingPosition,0); // fill the ring buffer with null chars
@@ -50,18 +51,25 @@ AlicatFlowmeterV2::AlicatFlowmeterV2(int Port){
 
 }
 bool AlicatFlowmeterV2::CheckPresence(){
-	return true; // improve this later
+	CallMeRegularly();
+	if (ThereIsNewData)
+		return true;
+	Sleep(50); // this small wait gives the opertunity to get some data
+	CallMeRegularly();
+	if (ThereIsNewData)
+		return true;
+	return false;
 }
 void AlicatFlowmeterV2::CallMeRegularly(){
-	ReadFile(	AlicatPortHandle,	//HANDLE        hFile,
-				TmpBuffer,      //LPVOID        lpBuffer,
+	ReadFile(	AlicatPortHandle,//HANDLE        hFile,
+				TmpBuffer,       //LPVOID        lpBuffer,
 				TmpBufferSize,   //DWORD         nNumberOfBytesToRead,
-				&BytesRead,     //LPDWORD       lpNumberOfBytesRead,
+				&BytesRead,      //LPDWORD       lpNumberOfBytesRead,
 				FALSE);
 	Ring->WriteString(RingPosition+1,BytesRead,TmpBuffer);
 	RingPosition+=BytesRead;
-	for(int i=0; i<RingSize; i++)
-		DiagnosticBuffer[i] = Ring->Read(i);
+	//for(int i=0; i<RingSize; i++)
+	//	DiagnosticBuffer[i] = Ring->Read(i);
 	ProcessData();
 }
 bool AlicatFlowmeterV2::ProcessData(){
@@ -78,21 +86,22 @@ bool AlicatFlowmeterV2::ProcessData(){
 	char SmallBuffer[SmallBufferSize];
 	Ring->ReadString(RingPosition-Offset,SmallBufferSize,SmallBuffer);
 	sscanf(SmallBuffer,"%f %f %f %f",&TmpPressure,&TmpTemperature,&TmpVolumetricFlow,&TmpMassFlow);
-	TmpPressure	  		=TmpPressure* 0.0689475729;// this converts from Psi to Bar
+	TmpPressure=TmpPressure*0.0689475729;// this converts from Psi to Bar
+	TmpMassFlow=TmpMassFlow*1000; // this line should only be used when the alicat gives data is standard litres per minute
 	if((200000<TmpMassFlow)		||(TmpMassFlow<-200000)
 		||(50<TmpTemperature)	||(TmpTemperature<0)
 		||(20<TmpPressure)		||(TmpPressure<0)){
 		return false; // this checks that the data is sensible
-	}else{ // I only want to update the data visible to the rest of the program if it is good.
-		if ((RingPosition-Offset)!=PreviousGoodPosition){
-			ThereIsNewData = true;
-			PreviousGoodPosition = (RingPosition-Offset);
-		}
-		LastMassFlow		= TmpMassFlow;
-		LastTemperature		= TmpTemperature;
-		LastPressure		= TmpPressure;
-		return true;
+	 }// I only want to update the data visible to the rest of the program if it is good.
+	if ((RingPosition-Offset)!=PreviousGoodPosition){
+		ThereIsNewData = true;
+		QueryPerformanceCounter(&TicksAssosiatedWithLastGoodData);
+		PreviousGoodPosition = (RingPosition-Offset);
 	}
+	LastMassFlow		= TmpMassFlow;
+	LastTemperature		= TmpTemperature;
+	LastPressure		= TmpPressure;
+	return true;
 }
 bool AlicatFlowmeterV2::IsThereNewData(){
 	// the over all intention is that the other classes can detect if there is
@@ -100,6 +109,11 @@ bool AlicatFlowmeterV2::IsThereNewData(){
 	bool tmp=ThereIsNewData;
 	ThereIsNewData = false;
 	return tmp;
+}
+double AlicatFlowmeterV2::DataAge(){
+	LARGE_INTEGER CurrentTicks;
+	QueryPerformanceCounter(&CurrentTicks);
+	return double(CurrentTicks.QuadPart - TicksAssosiatedWithLastGoodData.QuadPart)/double(Frequency.QuadPart); // this calculates the time in seconds from the last time there was good data
 }
 float AlicatFlowmeterV2::MassFlow(){
 	return LastMassFlow;

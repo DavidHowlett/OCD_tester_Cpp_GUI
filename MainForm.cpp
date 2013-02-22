@@ -31,10 +31,6 @@ __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner)
 	QueryPerformanceFrequency(&Frequency);  // get ticks per second
 	ReadingsInRawDataArray = 0;
 	PulsesRecorded->Text="0";
-	AvgCycleTime	->Text="0";
-	AvgOnTime			->Text="0";
-	AvgOffTime		->Text="0";
-	AvgVolume			->Text="0";
 }
 void __fastcall TForm1::FastTimerTimer(TObject *Sender)
 {
@@ -164,37 +160,35 @@ void TForm1::UpdateAverages(){// averages all the pulses in the current reading
 	AverageCycleTime[GroupsStoredInArrays]=0;
 	AveragePeakFlow[GroupsStoredInArrays]=0;
 	for(int i=0 ; i<PulsesInGroup[GroupsStoredInArrays];i++){
-		AveragePeakFlow		 [GroupsStoredInArrays]=AveragePeakFlow    [GroupsStoredInArrays]+PulsePeakFlow [i][GroupsStoredInArrays];
-		AverageCycleTime	 [GroupsStoredInArrays]=AverageCycleTime	 [GroupsStoredInArrays]+PulseCycleTime[i][GroupsStoredInArrays];
+		AveragePeakFlow	   [GroupsStoredInArrays]=AveragePeakFlow    [GroupsStoredInArrays]+PulsePeakFlow [i][GroupsStoredInArrays];
+		AverageCycleTime   [GroupsStoredInArrays]=AverageCycleTime	 [GroupsStoredInArrays]+PulseCycleTime[i][GroupsStoredInArrays];
 		AveragePulseOnTime [GroupsStoredInArrays]=AveragePulseOnTime [GroupsStoredInArrays]+PulseOnTime 	[i][GroupsStoredInArrays];
 		AveragePulseOffTime[GroupsStoredInArrays]=AveragePulseOffTime[GroupsStoredInArrays]+PulseOffTime 	[i][GroupsStoredInArrays];
 		AveragePulseVolume [GroupsStoredInArrays]=AveragePulseVolume [GroupsStoredInArrays]+PulseVolume 	[i][GroupsStoredInArrays];
 	}
 	if((PulsesInGroup[GroupsStoredInArrays]) != 0){
-		AveragePeakFlow		 [GroupsStoredInArrays]=AveragePeakFlow    [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
-		AverageCycleTime	 [GroupsStoredInArrays]=AverageCycleTime	 [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
+		AveragePeakFlow	   [GroupsStoredInArrays]=AveragePeakFlow    [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
+		AverageCycleTime   [GroupsStoredInArrays]=AverageCycleTime	 [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
 		AveragePulseOnTime [GroupsStoredInArrays]=AveragePulseOnTime [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
 		AveragePulseOffTime[GroupsStoredInArrays]=AveragePulseOffTime[GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
 		AveragePulseVolume [GroupsStoredInArrays]=AveragePulseVolume [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
 	}
+	char tmp[100];
+	sprintf(tmp,"%f \t%f \t%f \t%f",
+			AveragePeakFlow		[GroupsStoredInArrays],
+			AveragePulseOnTime	[GroupsStoredInArrays],
+			AverageCycleTime	[GroupsStoredInArrays],
+			AveragePulseVolume	[GroupsStoredInArrays]); // this order of values is adopted for backwards compatibility
+	RunningAvgs->Text=tmp;
 }
 void TForm1::PutProcessedDataOnScreen(){
 	char tmp[100];
-	sprintf(tmp,"%f \t%f \t%f \t%f \t%f",
+	sprintf(tmp,"%f \t%f \t%f \t%f",
 			PulsePeakFlow	[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
-			PulseCycleTime[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
 			PulseOnTime 	[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
-			PulseOffTime  [PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
+			PulseCycleTime	[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays],
 			PulseVolume 	[PulsesInGroup[GroupsStoredInArrays]-1] [GroupsStoredInArrays]);
-	PulseHistory->Items->Add(tmp);
-	sprintf(tmp,"%f",AverageCycleTime		[GroupsStoredInArrays]);
-	AvgCycleTime 	->Text=tmp;
-	sprintf(tmp,"%f",AveragePulseOnTime	[GroupsStoredInArrays]);
-	AvgOnTime		->Text=tmp;
-	sprintf(tmp,"%f",AveragePulseOffTime[GroupsStoredInArrays]);
-	AvgOffTime		->Text=tmp;
-	sprintf(tmp,"%f",AveragePulseVolume	[GroupsStoredInArrays]);
-	AvgVolume		->Text=tmp;
+	PulseHistory->Lines->Add(tmp);
 }
 void TForm1::FinishGroup(){
 	GroupsStoredInArrays++;
@@ -299,8 +293,9 @@ void TForm1::UpdatePulsesRecorded(){
 	char tmp[100];
 	itoa(PulsesInGroup[GroupsStoredInArrays],tmp,10);
 	PulsesRecorded->Text=tmp;
-	if (PulsesInGroup[GroupsStoredInArrays]==TargetPulsesInGroup)
-		PulsesRecorded->Color=clLime;
-	else
-		PulsesRecorded->Color=clRed;
+	//if (PulsesInGroup[GroupsStoredInArrays]==TargetPulsesInGroup)
+	//	PulsesRecorded->Color=clLime;
+	//else
+	//	PulsesRecorded->Color=clRed;
 }
+

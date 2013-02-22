@@ -63,11 +63,11 @@ bool TsiFlowmeter::CheckPresence(){
 	SetCommTimeouts(TsiPortHandle,&WaitForData);
 	Write("SSR0001"); // the flowmeter should reply "OK" to this.// this also sets the reading rate to max
 	Sleep(10);
-	ReadFile(		TsiPortHandle,                        //HANDLE        hFile,
-							TmpBuffer,                          //LPVOID        lpBuffer,
-							2,                    //DWORD         nNumberOfBytesToRead,
-							&BytesRead,                       //LPDWORD       lpNumberOfBytesRead,
-							FALSE);
+	ReadFile(	TsiPortHandle,	//HANDLE        hFile
+				TmpBuffer,      //LPVOID        lpBuffer,
+				2,              //DWORD         nNumberOfBytesToRead,
+				&BytesRead,     //LPDWORD       lpNumberOfBytesRead,
+				FALSE);
 	SetCommTimeouts(TsiPortHandle,&StdTimeouts);
 	if('O'==TmpBuffer[0] && 'K'==TmpBuffer[1])
 		return true;
@@ -86,7 +86,7 @@ void TsiFlowmeter::CallMeRegularly(){
 	}
 	ReadFile(		TsiPortHandle,	//HANDLE        hFile,
 					TmpBuffer,      //LPVOID        lpBuffer,
-					TmpBufferSize,   //DWORD         nNumberOfBytesToRead,
+					TmpBufferSize,  //DWORD         nNumberOfBytesToRead,
 					&BytesRead,     //LPDWORD       lpNumberOfBytesRead,
 					FALSE);
 

@@ -74,7 +74,7 @@ bool FlowMeterManager::AttemptTsiSetup(int GivenPort){
 		return false;
 	}
 }
-bool FlowMeterManager::AttemptAlicatSetup(int GivenPort){// this function is evil because it starts a class and does not close it
+bool FlowMeterManager::AttemptAlicatSetup(int GivenPort){
 	sprintf(tmp,"Searching for Alicat flowmeter on port %d",GivenPort);
 	FlowmeterStatus->Items->Add(tmp);
 	FlowMeterPointer = new AlicatFlowmeterV2(GivenPort);

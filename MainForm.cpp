@@ -23,7 +23,6 @@ __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner)
 	Settings = new SettingsFileManager;
 	Settings->ReadFile();
 	GenericFlowmeter = new FlowMeterManager(Settings,Log);//I want this class to always have acsess to these pointers
-
 	PulsesToRecord->Text = "3";
 	ZeroRawDataArrays();
 	ZeroProcessedDataArrays();
@@ -55,7 +54,7 @@ void __fastcall TForm1::OutputDataClick(TObject *Sender)
 }
 void __fastcall TForm1::StartClick(TObject *Sender)
 {
-	if (!GenericFlowmeter->FlowmeterReady) {
+	if (None==GenericFlowmeter->FlowmeterType) {
 		Log->Items->Add("You can't do this operation because the flowmeter is not setup yet");
 		return;
 	}

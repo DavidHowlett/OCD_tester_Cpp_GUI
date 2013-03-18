@@ -32,3 +32,5 @@ float AbstractFlowMeter::Temperature(){
 float AbstractFlowMeter::Pressure(){
 	return LastPressure;
 }
+ AbstractFlowMeter::~AbstractFlowMeter(){
+ }

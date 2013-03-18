@@ -9,39 +9,35 @@
 FlowMeterManager::FlowMeterManager(SettingsFileManager* GivenSettingsPointer,TListBox* GivenTEditPointer){
 	SettingsPointer=GivenSettingsPointer;
 	FlowmeterStatus=GivenTEditPointer;
-	FlowmeterReady = false;
 	PortNum = 0; // a port number of 0 is a special value
 	FlowmeterType = None;
 }
-FlowMeterManager::CallMeRegularly(){
-	// idea: insert code here to check if the flowmeter is working properly and if not then set FlowmeterReady = false;
-	if(!FlowmeterReady)			Setup();
-	if(Tsi == FlowmeterType)	TsiPointer->CallMeRegularly();
-	if(Alicat == FlowmeterType)	AlicatPointer->CallMeRegularly();
-	return 0;
+void FlowMeterManager::CallMeRegularly(){
+	if(FlowmeterType!=None)
+		FlowMeterPointer->CallMeRegularly();
+	if(FlowmeterType==None||FlowMeterPointer->DataAge()>1)// if no flowmeter is ready and the data is older then a second
+		Setup();
 }
 void FlowMeterManager::Setup(){ // this method should finish quickly to allow processing of the message queue.
 	// the flowmeter port does not change often so first try the one that worked last time
 	// and then systematicly try them all
+	FlowmeterType=None;
 	int TmpPortNum;
-	if(PortNum==0)
+	if(PortNum==0)// COM0 does not exist on windows
 		TmpPortNum = SettingsPointer->LatestGoodFlowmeterPort;
 	else
 		TmpPortNum = PortNum;
 	if(TestPortExistence(TmpPortNum)){
 		if (AttemptTsiSetup(TmpPortNum))
-			return ;
+			return;
 		if (AttemptAlicatSetup(TmpPortNum))
-			return ;
+			return;
 	}
 	PortNum++;
-
-	// if no flowmeter is found then tell the user and restart the search
-	if(PortNum>MAX_PORT_NUMBER){
+	if(PortNum>MAX_PORT_NUMBER){// if no flowmeter is found then tell the user and restart the search
 		PortNum=1;
 		FlowmeterStatus->Items->Add("Warning: no flowmeter found");
 	}
-	return;
 }
 bool FlowMeterManager::TestPortExistence(int GivenPort){// it would save the time of the user if the most recent sucsessfull flowmeter port detection was recorded in the settings file and then checked first
 	const size_t NewSize = 100;
@@ -52,7 +48,6 @@ bool FlowMeterManager::TestPortExistence(int GivenPort){// it would save the tim
 												0,	                  //DWORD dwShareMode (0 for COM port access),
 												SECURITY_ANONYMOUS,	  //LPSECURITY_ATTRIBUTES lpSecurityAttributes,
 												OPEN_EXISTING,	      //DWORD dwCreationDisposition (necessary to be OPEN_EXISTING for COM ports),
-//												FILE_FLAG_OVERLAPPED,  //DWORD dwFlagsAndAttributes,
 												FILE_ATTRIBUTE_NORMAL,//DWORD dwFlagsAndAttributes,
 												0);	                  //HANDLE hTemplateFile
 	if ((aComFile==INVALID_HANDLE_VALUE)||(aComFile==NULL)){
@@ -66,9 +61,8 @@ bool FlowMeterManager::TestPortExistence(int GivenPort){// it would save the tim
 bool FlowMeterManager::AttemptTsiSetup(int GivenPort){
 	sprintf(tmp,"Searching for TSI flowmeter on port %d",GivenPort);
 	FlowmeterStatus->Items->Add(tmp);
-	TsiPointer = new TsiFlowmeter(GivenPort);
-	if (TsiPointer->CheckPresence()) {
-		FlowmeterReady = true;
+	FlowMeterPointer = new TsiFlowmeter(GivenPort);
+	if (FlowMeterPointer->CheckPresence()) {
 		FlowmeterType = Tsi;
 		SettingsPointer->LatestGoodFlowmeterPort = GivenPort;
 		SettingsPointer->WriteFile();
@@ -76,17 +70,15 @@ bool FlowMeterManager::AttemptTsiSetup(int GivenPort){
 		FlowmeterStatus->Items->Add(tmp);
 		return true;
 	}else{
-		delete TsiPointer;
+		delete FlowMeterPointer;
 		return false;
 	}
 }
 bool FlowMeterManager::AttemptAlicatSetup(int GivenPort){// this function is evil because it starts a class and does not close it
 	sprintf(tmp,"Searching for Alicat flowmeter on port %d",GivenPort);
 	FlowmeterStatus->Items->Add(tmp);
-	AlicatPointer = new AlicatFlowmeterV2(GivenPort);
-
-	if (AlicatPointer->CheckPresence()) {
-		FlowmeterReady = true;
+	FlowMeterPointer = new AlicatFlowmeterV2(GivenPort);
+	if (FlowMeterPointer->CheckPresence()) {
 		FlowmeterType = Alicat;
 		SettingsPointer->LatestGoodFlowmeterPort = GivenPort;
 		SettingsPointer->WriteFile();
@@ -94,41 +86,32 @@ bool FlowMeterManager::AttemptAlicatSetup(int GivenPort){// this function is evi
 		FlowmeterStatus->Items->Add(tmp);
 		return true;
 	}else{
-		delete AlicatPointer;
+		delete FlowMeterPointer;
 		return false;
 	}
 }
 
 bool FlowMeterManager::IsThereNewData(){
-	if (Alicat == FlowmeterType)
-		return AlicatPointer->IsThereNewData();// this should probably be fixed later, the alicat class lacks the desired functionality
-	if (Tsi == FlowmeterType)
-		return TsiPointer->IsThereNewData();
+	if (FlowmeterType!=None)
+		return FlowMeterPointer->IsThereNewData();
 	return false; // if there is no flowmeter there is no new data
 }
 float FlowMeterManager::MassFlow(){ // should be SCCM
-	if (Alicat == FlowmeterType)
-		return AlicatPointer->MassFlow();
-	if (Tsi == FlowmeterType)
-		return TsiPointer->MassFlow();
+	if (FlowmeterType!=None)
+		return FlowMeterPointer->MassFlow();
 	return -1;
 }
 float FlowMeterManager::Temperature(){ // should be celcius
-	if (Alicat == FlowmeterType)
-		return AlicatPointer->Temperature();
-	if (Tsi == FlowmeterType)
-		return TsiPointer->Temperature();
+	if (FlowmeterType!=None)
+		return FlowMeterPointer->Temperature();
 	return -1;
 }
 float FlowMeterManager::Pressure(){ // should be bar
-	if (Alicat == FlowmeterType)
-		return AlicatPointer->Pressure();
-	if (Tsi == FlowmeterType)
-		return TsiPointer->Pressure();
+	if (FlowmeterType!=None)
+		return FlowMeterPointer->Pressure();
 	return -1;
 }
 FlowMeterManager::~FlowMeterManager(){
-	delete AlicatPointer;
-	delete TsiPointer;
+	delete FlowMeterPointer;
 }
 

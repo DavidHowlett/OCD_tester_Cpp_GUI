@@ -11,6 +11,7 @@ class AbstractFlowMeter{
 		virtual float MassFlow(); 	// should return a value in SCCM
 		virtual float Temperature(); 	// should return a value in Celcius
 		virtual float Pressure(); 	// should return a value in Bar
+		virtual ~AbstractFlowMeter();
 	protected:
 		LARGE_INTEGER TicksAssosiatedWithLastGoodData;
 		LARGE_INTEGER Frequency;        // ticks per second

@@ -3,24 +3,24 @@
 #include "TsiFlowmeter.h"
 //#include "AlicatFlowmeter.h"
 #include "AlicatFlowmeterV2.h"
-#include "FlowmeterManager.h"
+#include "FlowMeterManager.h"
 
 //---------------------------------------------------------------------------
-FlowmeterManager::FlowmeterManager(SettingsFileManager* GivenSettingsPointer,TListBox* GivenTEditPointer){
+FlowMeterManager::FlowMeterManager(SettingsFileManager* GivenSettingsPointer,TListBox* GivenTEditPointer){
 	SettingsPointer=GivenSettingsPointer;
 	FlowmeterStatus=GivenTEditPointer;
 	FlowmeterReady = false;
 	PortNum = 0; // a port number of 0 is a special value
 	FlowmeterType = None;
 }
-FlowmeterManager::CallMeRegularly(){
+FlowMeterManager::CallMeRegularly(){
 	// idea: insert code here to check if the flowmeter is working properly and if not then set FlowmeterReady = false;
 	if(!FlowmeterReady)			Setup();
 	if(Tsi == FlowmeterType)	TsiPointer->CallMeRegularly();
 	if(Alicat == FlowmeterType)	AlicatPointer->CallMeRegularly();
 	return 0;
 }
-void FlowmeterManager::Setup(){ // this method should finish quickly to allow processing of the message queue.
+void FlowMeterManager::Setup(){ // this method should finish quickly to allow processing of the message queue.
 	// the flowmeter port does not change often so first try the one that worked last time
 	// and then systematicly try them all
 	int TmpPortNum;
@@ -43,7 +43,7 @@ void FlowmeterManager::Setup(){ // this method should finish quickly to allow pr
 	}
 	return;
 }
-bool FlowmeterManager::TestPortExistence(int GivenPort){// it would save the time of the user if the most recent sucsessfull flowmeter port detection was recorded in the settings file and then checked first
+bool FlowMeterManager::TestPortExistence(int GivenPort){// it would save the time of the user if the most recent sucsessfull flowmeter port detection was recorded in the settings file and then checked first
 	const size_t NewSize = 100;
 	wchar_t MyWideString[NewSize];
 	swprintf(MyWideString,NewSize, L"\\\\.\\COM%d",GivenPort); // note that this is the wide char equivelent of sprintf, the capital L tells the program that input string should be wide char
@@ -63,7 +63,7 @@ bool FlowmeterManager::TestPortExistence(int GivenPort){// it would save the tim
 		return true;
 	}
 }
-bool FlowmeterManager::AttemptTsiSetup(int GivenPort){
+bool FlowMeterManager::AttemptTsiSetup(int GivenPort){
 	sprintf(tmp,"Searching for TSI flowmeter on port %d",GivenPort);
 	FlowmeterStatus->Items->Add(tmp);
 	TsiPointer = new TsiFlowmeter(GivenPort);
@@ -80,7 +80,7 @@ bool FlowmeterManager::AttemptTsiSetup(int GivenPort){
 		return false;
 	}
 }
-bool FlowmeterManager::AttemptAlicatSetup(int GivenPort){// this function is evil because it starts a class and does not close it
+bool FlowMeterManager::AttemptAlicatSetup(int GivenPort){// this function is evil because it starts a class and does not close it
 	sprintf(tmp,"Searching for Alicat flowmeter on port %d",GivenPort);
 	FlowmeterStatus->Items->Add(tmp);
 	AlicatPointer = new AlicatFlowmeterV2(GivenPort);
@@ -99,35 +99,35 @@ bool FlowmeterManager::AttemptAlicatSetup(int GivenPort){// this function is evi
 	}
 }
 
-bool FlowmeterManager::IsThereNewData(){
+bool FlowMeterManager::IsThereNewData(){
 	if (Alicat == FlowmeterType)
 		return AlicatPointer->IsThereNewData();// this should probably be fixed later, the alicat class lacks the desired functionality
 	if (Tsi == FlowmeterType)
 		return TsiPointer->IsThereNewData();
 	return false; // if there is no flowmeter there is no new data
 }
-float FlowmeterManager::MassFlow(){ // should be SCCM
+float FlowMeterManager::MassFlow(){ // should be SCCM
 	if (Alicat == FlowmeterType)
 		return AlicatPointer->MassFlow();
 	if (Tsi == FlowmeterType)
 		return TsiPointer->MassFlow();
 	return -1;
 }
-float FlowmeterManager::Temperature(){ // should be celcius
+float FlowMeterManager::Temperature(){ // should be celcius
 	if (Alicat == FlowmeterType)
 		return AlicatPointer->Temperature();
 	if (Tsi == FlowmeterType)
 		return TsiPointer->Temperature();
 	return -1;
 }
-float FlowmeterManager::Pressure(){ // should be bar
+float FlowMeterManager::Pressure(){ // should be bar
 	if (Alicat == FlowmeterType)
 		return AlicatPointer->Pressure();
 	if (Tsi == FlowmeterType)
 		return TsiPointer->Pressure();
 	return -1;
 }
-FlowmeterManager::~FlowmeterManager(){
+FlowMeterManager::~FlowMeterManager(){
 	delete AlicatPointer;
 	delete TsiPointer;
 }

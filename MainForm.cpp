@@ -12,17 +12,17 @@
 // My Header Files ----------------------------------------------------------
 #include "MainForm.h"
 #include "SettingsFileManager.h"
-#include "FlowmeterManager.h"
+#include "FlowMeterManager.h"
 // My Classes ---------------------------------------------------------------
 TForm1 *Form1;
 SettingsFileManager * Settings;
-FlowmeterManager * GenericFlowmeter;
+FlowMeterManager * GenericFlowmeter;
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner)
 {
 	Settings = new SettingsFileManager;
 	Settings->ReadFile();
-	GenericFlowmeter = new FlowmeterManager(Settings,Log);//I want this class to always have acsess to these pointers
+	GenericFlowmeter = new FlowMeterManager(Settings,Log);//I want this class to always have acsess to these pointers
 
 	PulsesToRecord->Text = "3";
 	ZeroRawDataArrays();

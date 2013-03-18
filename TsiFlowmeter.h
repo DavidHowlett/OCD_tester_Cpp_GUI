@@ -2,8 +2,9 @@
 #define TsiFlowmeterH
 #include <ExtCtrls.hpp>
 class RingBuffer;
+#include "AbstractFlowMeter.h"
 
-class TsiFlowmeter{
+class TsiFlowmeter:AbstractFlowMeter{
 	public:
 		TsiFlowmeter(int Port);
 		bool CheckPresence();		  	// checks if the flowmeter answers to sent data

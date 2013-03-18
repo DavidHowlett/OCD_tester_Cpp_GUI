@@ -1,19 +1,19 @@
-#ifndef FlowmeterManagerH
-#define FlowmeterManagerH
+#ifndef FlowMeterManagerH
+#define FlowMeterManagerH
 class SettingsFileManager;
 class AlicatFlowmeterV2; // I chose to forward declare this rather then include the whole header file
 class TsiFlowmeter;    // I chose to forward declare this rather then include the whole header file
 //---------------------------------------------------------------------------
-class FlowmeterManager{
+class FlowMeterManager{
 	public:
-		FlowmeterManager(SettingsFileManager*, TListBox*);
+		FlowMeterManager(SettingsFileManager*, TListBox*);
 		void Setup(); // this method should be repetitively called until there is a valid flowmeter setup
 		int CallMeRegularly();
 		bool IsThereNewData();
 		float MassFlow(); // should be SCCM
 		float Temperature(); // should be celcius
 		float Pressure(); // should be bar
-		~FlowmeterManager();
+		~FlowMeterManager();
 	public:
 		bool FlowmeterReady; // this should be true if the flowmeter has been setup and the caller of this class can safely get data from it
 		enum FlowmeterTypeEnum {None, Alicat, Tsi} FlowmeterType;

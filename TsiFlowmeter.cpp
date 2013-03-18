@@ -4,8 +4,6 @@
 #pragma hdrstop
 #include "TsiFlowmeter.h"
 #include "RingBuffer.h"
-
-
 TsiFlowmeter::TsiFlowmeter(int Port){
 	LastMassFlow 		= -2;
 	LastTemperature = -2;

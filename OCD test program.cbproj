@@ -65,6 +65,10 @@
 			<TASM_Debugging>None</TASM_Debugging>
 		</PropertyGroup>
 		<ItemGroup>
+			<CppCompile Include="AbstractFlowMeter.cpp">
+				<DependentOn>AbstractFlowMeter.h</DependentOn>
+				<BuildOrder>12</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="Alan code\AlicatFlowmeter.cpp">
 				<DependentOn>Alan code\AlicatFlowmeter.h</DependentOn>
 				<BuildOrder>6</BuildOrder>
@@ -85,9 +89,9 @@
 				<DependentOn>AlicatFlowmeterV2.h</DependentOn>
 				<BuildOrder>11</BuildOrder>
 			</CppCompile>
-			<CppCompile Include="FlowmeterManager.cpp">
-				<DependentOn>FlowmeterManager.h</DependentOn>
-				<BuildOrder>5</BuildOrder>
+			<CppCompile Include="FlowMeterManager.cpp">
+				<DependentOn>FlowMeterManager.h</DependentOn>
+				<BuildOrder>12</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="MainForm.cpp">
 				<Form>Form1</Form>

@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'OCD test program'
-  ClientHeight = 433
-  ClientWidth = 743
+  ClientHeight = 458
+  ClientWidth = 795
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,17 +12,18 @@ object Form1: TForm1
   Font.Style = []
   OldCreateOrder = False
   DesignSize = (
-    743
-    433)
+    795
+    458)
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel
     Left = 256
-    Top = 375
+    Top = 400
     Width = 87
     Height = 13
     Anchors = [akLeft, akBottom]
     Caption = 'Running averages'
+    ExplicitTop = 375
   end
   object Label3: TLabel
     Left = 256
@@ -126,7 +127,7 @@ object Form1: TForm1
     Left = 8
     Top = 231
     Width = 233
-    Height = 194
+    Height = 219
     Anchors = [akLeft, akTop, akBottom]
     ItemHeight = 13
     TabOrder = 5
@@ -168,16 +169,16 @@ object Form1: TForm1
   object PulseHistory: TMemo
     Left = 256
     Top = 56
-    Width = 467
-    Height = 305
+    Width = 519
+    Height = 330
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 10
   end
   object RunningAvgs: TEdit
     Left = 256
-    Top = 400
-    Width = 467
-    Height = 25
+    Top = 425
+    Width = 519
+    Height = 21
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 11
   end

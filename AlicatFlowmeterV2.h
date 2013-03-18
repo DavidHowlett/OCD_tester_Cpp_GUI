@@ -2,8 +2,9 @@
 #define AlicatFlowmeterV2H
 #include <ExtCtrls.hpp>
 class RingBuffer;
+#include "AbstractFlowMeter.h"
 
-class AlicatFlowmeterV2{ // this class is based on the TsiFlowmeter class
+class AlicatFlowmeterV2: public AbstractFlowMeter{ // this class is based on the TsiFlowmeter class
 	public:
 		AlicatFlowmeterV2(int Port);
 		bool CheckPresence();		  	// checks if the flowmeter answers to sent data

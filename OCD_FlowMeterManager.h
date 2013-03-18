@@ -1,5 +1,5 @@
-#ifndef FlowMeterManagerH
-#define FlowMeterManagerH
+#ifndef OCD_FlowMeterManagerH
+#define OCD_FlowMeterManagerH
 class SettingsFileManager;
 class AbstractFlowMeter;
 //class AlicatFlowmeterV2; // I chose to forward declare this rather then include the whole header file

@@ -73,10 +73,6 @@
 				<DependentOn>AlicatFlowmeterV2.h</DependentOn>
 				<BuildOrder>11</BuildOrder>
 			</CppCompile>
-			<CppCompile Include="FlowmeterManager.cpp">
-				<DependentOn>FlowMeterManager.h</DependentOn>
-				<BuildOrder>12</BuildOrder>
-			</CppCompile>
 			<CppCompile Include="MainForm.cpp">
 				<Form>Form1</Form>
 				<DependentOn>MainForm.h</DependentOn>
@@ -88,6 +84,10 @@
 			<ResFiles Include="OCD test program.res">
 				<BuildOrder>1</BuildOrder>
 			</ResFiles>
+			<CppCompile Include="OCD_FlowMeterManager.cpp">
+				<DependentOn>OCD_FlowMeterManager.h</DependentOn>
+				<BuildOrder>8</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="RingBuffer.cpp">
 				<DependentOn>RingBuffer.h</DependentOn>
 				<BuildOrder>10</BuildOrder>

@@ -69,22 +69,6 @@
 				<DependentOn>AbstractFlowMeter.h</DependentOn>
 				<BuildOrder>12</BuildOrder>
 			</CppCompile>
-			<CppCompile Include="Alan code\AlicatFlowmeter.cpp">
-				<DependentOn>Alan code\AlicatFlowmeter.h</DependentOn>
-				<BuildOrder>6</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Alan code\DumbStringList.cpp">
-				<DependentOn>Alan code\DumbStringList.h</DependentOn>
-				<BuildOrder>7</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Alan code\Functions.cpp">
-				<DependentOn>Alan code\Functions.h</DependentOn>
-				<BuildOrder>8</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Alan code\RS232Primitive.cpp">
-				<DependentOn>Alan code\RS232Primitive.h</DependentOn>
-				<BuildOrder>9</BuildOrder>
-			</CppCompile>
 			<CppCompile Include="AlicatFlowmeterV2.cpp">
 				<DependentOn>AlicatFlowmeterV2.h</DependentOn>
 				<BuildOrder>11</BuildOrder>

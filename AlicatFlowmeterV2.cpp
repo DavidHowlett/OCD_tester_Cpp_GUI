@@ -6,12 +6,7 @@
 #include "RingBuffer.h"
 
 AlicatFlowmeterV2::AlicatFlowmeterV2(int Port){
-	LastMassFlow 		= -2;
-	TmpVolumetricFlow 	= -2;
-	LastTemperature 	= -2;
-	LastPressure 		= -2;
 	PreviousGoodPosition= -1; // this is deliberately initialised to a bogus position
-	QueryPerformanceFrequency(&Frequency);  // get ticks per second
 	Ring = new RingBuffer(RingSize);
 	for (RingPosition=0;RingPosition<RingSize;RingPosition++)
 		Ring->Write(RingPosition,0); // fill the ring buffer with null chars
@@ -73,11 +68,11 @@ void AlicatFlowmeterV2::CallMeRegularly(){
 	ProcessData();
 }
 bool AlicatFlowmeterV2::ProcessData(){
+	// this method finds the two most recent carrage returns, attempts to read the data between them and then updates the class's internal values if the data is good
 	int Offset=0;
 	for (int CR_Found=0;CR_Found<=2; Offset++) {
-		if(13==Ring->Read(RingPosition-Offset)){ //13 is a carage return
+		if(13==Ring->Read(RingPosition-Offset)) //13 is a carage return
 			CR_Found++;
-		}
 		if(Offset>=RingSize)
 			return false; // this causes ProcessData to fail early if there is no data avalible
 	}
@@ -99,30 +94,10 @@ bool AlicatFlowmeterV2::ProcessData(){
 		PreviousGoodPosition = (RingPosition-Offset);
 	}
 	LastMassFlow		= TmpMassFlow;
+	LastVolumetricFlow 	= TmpVolumetricFlow;
 	LastTemperature		= TmpTemperature;
 	LastPressure		= TmpPressure;
 	return true;
-}
-bool AlicatFlowmeterV2::IsThereNewData(){
-	// the over all intention is that the other classes can detect if there is
-	// new data avalible
-	bool tmp=ThereIsNewData;
-	ThereIsNewData = false;
-	return tmp;
-}
-double AlicatFlowmeterV2::DataAge(){
-	LARGE_INTEGER CurrentTicks;
-	QueryPerformanceCounter(&CurrentTicks);
-	return double(CurrentTicks.QuadPart - TicksAssosiatedWithLastGoodData.QuadPart)/double(Frequency.QuadPart); // this calculates the time in seconds from the last time there was good data
-}
-float AlicatFlowmeterV2::MassFlow(){
-	return LastMassFlow;
-}
-float AlicatFlowmeterV2::Temperature(){
-	return LastTemperature;
-}
-float AlicatFlowmeterV2::Pressure(){
-	return LastPressure;
 }
 AlicatFlowmeterV2::~AlicatFlowmeterV2(){
 	PurgeComm(AlicatPortHandle,PURGE_RXCLEAR&PURGE_TXCLEAR);// this ditches the data in the port

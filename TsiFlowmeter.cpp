@@ -5,11 +5,8 @@
 #include "TsiFlowmeter.h"
 #include "RingBuffer.h"
 TsiFlowmeter::TsiFlowmeter(int Port){
-	LastMassFlow 		= -2;
-	LastTemperature = -2;
-	LastPressure 		= -2;
 	DataCount 			= 10000; // this causes the first request for data to be sent
-	WaitCount				= 0;
+	WaitCount			= 0;
 	BadDataCount		= 0;
 	PreviousGoodPosition = -1; // this is deliberately initialised to a bogus position
 	Ring = new RingBuffer(RingSize);
@@ -120,6 +117,7 @@ bool TsiFlowmeter::TestDataWithOffset(int Offset){
 		}else{ // I only want to update the data visible to the rest of the program if it is good.
 			if (PreviousGoodPosition!=PositionToTry){
 				ThereIsNewData = true;
+				QueryPerformanceCounter(&TicksAssosiatedWithLastGoodData);
 				PreviousGoodPosition = PositionToTry;
 			}
 			return true;
@@ -130,23 +128,6 @@ void TsiFlowmeter::AskForData(){
 	DataCount = 0;
 	Write("DBFTP1000");
 	//Sleep(10); // experimentaly it was found that sleeping for 7 or less was unreliable.
-}
-bool TsiFlowmeter::IsThereNewData(){
-	// the over all intention is that the other classes can detect if there is
-	// new data avalible
-	bool tmp=ThereIsNewData;
-	ThereIsNewData = false;
-	return tmp;
-}
-
-float TsiFlowmeter::MassFlow(){
-	return LastMassFlow;
-}
-float TsiFlowmeter::Temperature(){
-	return LastTemperature;
-}
-float TsiFlowmeter::Pressure(){
-	return LastPressure;
 }
 int TsiFlowmeter::Write(char* ToSend){             	// sends a c string to the flowmeter
 	DWORD BytesWritten;					   //Number of bytes written
@@ -159,7 +140,6 @@ int TsiFlowmeter::Write(char* ToSend){             	// sends a c string to the f
 								FALSE);                  //LPOVERLAPPED lpOverlapped
 	return BytesWritten;
 }
-
 TsiFlowmeter::~TsiFlowmeter(){
 	PurgeComm(TsiPortHandle,PURGE_RXCLEAR&PURGE_TXCLEAR);// this ditches the data in the port
 	CloseHandle(TsiPortHandle);

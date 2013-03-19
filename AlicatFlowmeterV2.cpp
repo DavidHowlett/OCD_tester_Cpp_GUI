@@ -43,7 +43,7 @@ AlicatFlowmeterV2::AlicatFlowmeterV2(int Port){
 	StdTimeouts.WriteTotalTimeoutMultiplier =10;
 
 	SetCommTimeouts(AlicatPortHandle,&StdTimeouts);
-
+	Write("*@=@");// this sets the Alicat to streaming mode if it is not already
 }
 bool AlicatFlowmeterV2::CheckPresence(){
 	CallMeRegularly();
@@ -98,6 +98,17 @@ bool AlicatFlowmeterV2::ProcessData(){
 	LastTemperature		= TmpTemperature;
 	LastPressure		= TmpPressure;
 	return true;
+}
+int AlicatFlowmeterV2::Write(char* ToSend){             	// sends a c string to the flowmeter
+	DWORD BytesWritten;					   //Number of bytes written
+	AnsiString AStringSendMe(ToSend), CarrageReturn('\r'); // a carrage return is needed for the tsi flowmeter to recognise a command.
+	AStringSendMe += CarrageReturn;
+	WriteFile(	AlicatPortHandle,                  //HANDLE hComFile
+				AStringSendMe.c_str(),                  //LPCVOID lpBuffer,
+				AStringSendMe.Length(),                  //DWORD nNumberOfBytesToWrite,
+				&BytesWritten ,                  //LPDWORD lpNumberOfBytesWritten,
+				FALSE);                  //LPOVERLAPPED lpOverlapped
+	return BytesWritten;
 }
 AlicatFlowmeterV2::~AlicatFlowmeterV2(){
 	PurgeComm(AlicatPortHandle,PURGE_RXCLEAR&PURGE_TXCLEAR);// this ditches the data in the port

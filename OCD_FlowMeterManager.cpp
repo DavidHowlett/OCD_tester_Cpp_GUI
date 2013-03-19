@@ -21,7 +21,10 @@ void FlowMeterManager::CallMeRegularly(){
 void FlowMeterManager::Setup(){ // this method should finish quickly to allow processing of the message queue.
 	// the flowmeter port does not change often so first try the one that worked last time
 	// and then systematicly try them all
-	FlowmeterType=None;
+	if (FlowmeterType!=None) {
+		FlowmeterType=None;
+		delete FlowMeterPointer;
+	}
 	int TmpPortNum;
 	if(PortNum==0)// COM0 does not exist on windows
 		TmpPortNum = SettingsPointer->LatestGoodFlowmeterPort;

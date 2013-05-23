@@ -15,7 +15,7 @@ FlowMeterManager::FlowMeterManager(SettingsFileManager* GivenSettingsPointer,TLi
 void FlowMeterManager::CallMeRegularly(){
 	if(FlowmeterType!=None)
 		FlowMeterPointer->CallMeRegularly();
-	if(FlowmeterType==None||FlowMeterPointer->DataAge()>1)// if no flowmeter is ready and the data is older then a second
+	if(FlowmeterType==None||FlowMeterPointer->DataAge()>1)// if no flowmeter is ready or the data is older then a second
 		Setup();
 }
 void FlowMeterManager::Setup(){ // this method should finish quickly to allow processing of the message queue.

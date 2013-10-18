@@ -24,7 +24,6 @@ class FlowMeterManager{
 		bool AttemptTsiSetup(int Port);
 		bool AttemptAlicatSetup(int Port);
 
-		#define MAX_PORT_NUMBER 200 // this is the largest port number the program can cope with
 		//bool PortExistence[MAX_PORT_NUMBER];
 		AbstractFlowMeter* FlowMeterPointer;
 		SettingsFileManager* SettingsPointer;

@@ -1,6 +1,6 @@
-7		(integer)		The port on which the program most recently found a flowmeter
+8		(integer)		The port on which the program most recently found a flowmeter
 5		(integer)		The length of time in ms between individual raw data readings 
-97		(integer)		The most recently used raw data file number 
-7		(integer)		The most recently used analysed data file number 
+106		(integer)		The most recently used raw data file number 
+18		(integer)		The most recently used analysed data file number 
 500.000000	(floating point number)	The trigger flow rate. The flow rate in SCCM at which the software recognises that a pulse of air has started 
 1234567890	(integer)		Don't change this value, it's purpose is to test if the settings file has been read correctly 

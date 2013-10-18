@@ -37,7 +37,7 @@ void FlowMeterManager::Setup(){ // this method should finish quickly to allow pr
 			return;
 	}
 	PortNum++;
-	if(PortNum>MAX_PORT_NUMBER){// if no flowmeter is found then tell the user and restart the search
+	if(PortNum>200){// if no flowmeter is found then tell the user and restart the search
 		PortNum=1;
 		FlowmeterStatus->Items->Add("Warning: no flowmeter found");
 	}

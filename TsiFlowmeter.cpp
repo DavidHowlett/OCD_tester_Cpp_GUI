@@ -92,8 +92,8 @@ void TsiFlowmeter::CallMeRegularly(){
 		WaitCount=0;
 	else
 		WaitCount++;
-	for(int i=0; i < RingSize; i++)
-		DiagnosticBuffer[i] = Ring->Read(i);
+	//for(int i=0; i < RingSize; i++)
+	//	DiagnosticBuffer[i] = Ring->Read(i);
 	for(int i=0;i>(0-RingSize);i--)
 		if(TestDataWithOffset(i)){
 			LastMassFlow		= TmpMassFlow;

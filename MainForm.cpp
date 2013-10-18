@@ -22,7 +22,7 @@ __fastcall TForm1::TForm1(TComponent* Owner) : TForm(Owner)
 {
 	Settings = new SettingsFileManager;
 	Settings->ReadFile();
-	GenericFlowmeter = new FlowMeterManager(Settings,Log);//I want this class to always have acsess to these pointers
+	GenericFlowmeter = new FlowMeterManager(Settings,Log);//I want this class to always have access to these pointers
 	PulsesToRecord->Text = "3";
 	ZeroRawDataArrays();
 	ZeroProcessedDataArrays();
@@ -146,7 +146,7 @@ void  TForm1::ProcessRecentData(){ // I need to find the pulse duration, the cyc
 	//execute for every data point
 	if (FlowReading[ReadingsInRawDataArray-1] > CurrentBiggestFlow)
 		CurrentBiggestFlow = FlowReading[ReadingsInRawDataArray-1];
-	// explain the below line later, remember the diffrence between SCCM and ml a second, belos formula may be out by a factor of 1000
+	// explain the below line later, remember the diffrence between SCCM and ml a second, below formula may be out by a factor of 1000
 	// the time is in seconds, the flow rate is in SCCM so the volume is in SCC so the foumula is time*flowrate/60 then there is a divide by two to account for the double counting of time
 	IntegratedVolume+=(TimeOfReading[ReadingsInRawDataArray-1]-TimeOfReading[ReadingsInRawDataArray-1-2])*FlowReading[ReadingsInRawDataArray-1-1]/120.0;
 	UpdatePulsesRecorded();
@@ -158,19 +158,20 @@ void TForm1::UpdateAverages(){// averages all the pulses in the current reading
 	AveragePulseOffTime[GroupsStoredInArrays]=0;
 	AverageCycleTime[GroupsStoredInArrays]=0;
 	AveragePeakFlow[GroupsStoredInArrays]=0;
+	// I first sum the pulse data
 	for(int i=0 ; i<PulsesInGroup[GroupsStoredInArrays];i++){
-		AveragePeakFlow	   [GroupsStoredInArrays]=AveragePeakFlow    [GroupsStoredInArrays]+PulsePeakFlow [i][GroupsStoredInArrays];
-		AverageCycleTime   [GroupsStoredInArrays]=AverageCycleTime	 [GroupsStoredInArrays]+PulseCycleTime[i][GroupsStoredInArrays];
-		AveragePulseOnTime [GroupsStoredInArrays]=AveragePulseOnTime [GroupsStoredInArrays]+PulseOnTime 	[i][GroupsStoredInArrays];
-		AveragePulseOffTime[GroupsStoredInArrays]=AveragePulseOffTime[GroupsStoredInArrays]+PulseOffTime 	[i][GroupsStoredInArrays];
-		AveragePulseVolume [GroupsStoredInArrays]=AveragePulseVolume [GroupsStoredInArrays]+PulseVolume 	[i][GroupsStoredInArrays];
+		AveragePeakFlow	   [GroupsStoredInArrays]+=PulsePeakFlow[i][GroupsStoredInArrays];
+		AverageCycleTime   [GroupsStoredInArrays]+=PulseCycleTime[i][GroupsStoredInArrays];
+		AveragePulseOnTime [GroupsStoredInArrays]+=PulseOnTime 	[i][GroupsStoredInArrays];
+		AveragePulseOffTime[GroupsStoredInArrays]+=PulseOffTime	[i][GroupsStoredInArrays];
+		AveragePulseVolume [GroupsStoredInArrays]+=PulseVolume 	[i][GroupsStoredInArrays];
 	}
 	if((PulsesInGroup[GroupsStoredInArrays]) != 0){
-		AveragePeakFlow	   [GroupsStoredInArrays]=AveragePeakFlow    [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
-		AverageCycleTime   [GroupsStoredInArrays]=AverageCycleTime	 [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
-		AveragePulseOnTime [GroupsStoredInArrays]=AveragePulseOnTime [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
-		AveragePulseOffTime[GroupsStoredInArrays]=AveragePulseOffTime[GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
-		AveragePulseVolume [GroupsStoredInArrays]=AveragePulseVolume [GroupsStoredInArrays]/(PulsesInGroup[GroupsStoredInArrays]);
+		AveragePeakFlow	   [GroupsStoredInArrays]/=PulsesInGroup[GroupsStoredInArrays];
+		AverageCycleTime   [GroupsStoredInArrays]/=PulsesInGroup[GroupsStoredInArrays];
+		AveragePulseOnTime [GroupsStoredInArrays]/=PulsesInGroup[GroupsStoredInArrays];
+		AveragePulseOffTime[GroupsStoredInArrays]/=PulsesInGroup[GroupsStoredInArrays];
+		AveragePulseVolume [GroupsStoredInArrays]/=PulsesInGroup[GroupsStoredInArrays];
 	}
 	char tmp[100];
 	sprintf(tmp,"%f \t%f \t%f \t%f",
@@ -192,16 +193,20 @@ void TForm1::PutProcessedDataOnScreen(){
 void TForm1::FinishGroup(){
 	GroupsStoredInArrays++;
 	GroupIsRecording = false;
-  Start->Caption="Start";
+	Start->Caption="Start";
 	Log->Items->Add("Pulse recording ended");
 	SaveRawData();
-	if(GroupsStoredInArrays>=MaxGroupsBeforeOutputtingAnalysisFile)// this is included to handle the overflow caused by the user taking too many readings before telling the system to output an analyis file
+	//this is included to handle the overflow caused by the user taking
+	//too many readings before telling the system to output an analyis file
+	if(GroupsStoredInArrays>=MaxGroupsBeforeOutputtingAnalysisFile)
 		SaveProcessedData();
 }
-void TForm1::SaveRawData(){ // this function needs to know the current reading number and it needs to know the most recently written raw Settings file number
+void TForm1::SaveRawData(){
+	//this function needs to know the current reading number and it needs
+	//to know the most recently written raw Settings file number
 	char FileName[50];
 	sprintf(FileName,"raw data %d.txt",Settings->LastRawDataFileNumber+1);
-	Settings->WriteFile(); // this record the change in the most_recently_used_raw_data_file_number
+	Settings->WriteFile(); // this records the change in the most_recently_used_raw_data_file_number
 	RawDataFileAssosiatedWithGroup [GroupsStoredInArrays-1]=Settings->LastRawDataFileNumber+1;
 	FILE * pFile;
 	pFile = fopen (FileName,"w+");
@@ -218,8 +223,11 @@ void TForm1::SaveRawData(){ // this function needs to know the current reading n
 		fprintf(pFile,"%s\n",buffer);
 		fprintf(pFile,"The left column shows the number of seconds since data logging began and the right column shows the mass flow reading at that time\n\n");
 		for (int i = 0; i < RawDataArraySize; i++) {
-			if(i>5 && TimeOfReading[i]<0.01) // the array is intialised to contain only zeros exept in the region in which there is data. it is expected that once this loop is 5 readings into the data the time will no longer be 0
-				break;                                // this means that the text file is truncated to the size of the actual data
+			//the array is intialised to contain only zeros exept in the region in which there is data.
+			//it is expected that once this loop is 5 readings into the data the time will no longer be 0
+			if(i>5 && TimeOfReading[i]<0.01)
+				//this means that the text file is truncated to the size of the actual data
+				break;
 			fprintf(pFile,"%f\t%f\n",TimeOfReading[i],FlowReading[i]);
 		}
 		char tmp[100];
@@ -233,7 +241,8 @@ void TForm1::SaveRawData(){ // this function needs to know the current reading n
 void TForm1::SaveProcessedData(){
 	FILE * pFile;
 	char FileName[50];
-	sprintf(FileName,"processed data %d.txt",(Settings->LastProcessedDataFileNumber+1)); // the idea is that this causes the analysed data file numbers to be numbered sequentialy
+	// the idea is that this causes the analysed data file numbers to be numbered sequentialy
+	sprintf(FileName,"processed data %d.txt",(Settings->LastProcessedDataFileNumber+1));
 	pFile = fopen (FileName,"w");
 	if(NULL==pFile){
 		Log->Items->Add("Could not open processed data file\n");
